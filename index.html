@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kut Milz EA - Control Dashboard</title>
+  <title>KutEA26 - EA Control Dashboard</title>
   <style>
     :root {
       --bg: #0b1220;
@@ -791,6 +791,7 @@ Mode: IDLE</div>
     </section>
   </main>
 
+  <script src="./kutea26_memory.js"></script>
   <script>
     // Real-mode dashboard with backend bridge.
     const bus = new EventTarget();
@@ -807,6 +808,7 @@ Mode: IDLE</div>
       history: [],
       marketCandles: {},
       marketStructure: {},
+      memoryLearning: {},
       chartTf: "M1",
       chartTool: "none",
       chartPendingPoint: null,
@@ -849,12 +851,17 @@ Mode: IDLE</div>
         tag_stats: [],
         tag_stats_updated_at: null
       },
+      preferredSymbol: "",
       selectedSymbol: "",
       allowedSymbols: [],
       activePanel: "brokerPanel",
       seenLogs: new Set(),
-      poller: null
+      poller: null,
+      memoryPersistTimer: null
     };
+
+    const memory = (typeof window !== "undefined" && window.KutEA26Memory) ? window.KutEA26Memory : null;
+    const MAX_LOCAL_BARS = memory && Number.isFinite(Number(memory.MAX_BARS)) ? Math.max(320, Number(memory.MAX_BARS)) : 12500;
 
     // Login logic.
     const USERNAME = "KutEA26";
@@ -930,6 +937,88 @@ Mode: IDLE</div>
     function isFileMode() { return window.location.protocol === "file:"; }
     function normalizeSymbol(value) { return String(value || "").trim(); }
     function normalizeTf(value) { return String(value || "M1").trim().toUpperCase(); }
+
+    function learningHorizonForTf(tf) {
+      const tag = normalizeTf(tf);
+      if (tag === "M1") return 20;
+      if (tag === "M5") return 16;
+      if (tag === "M15") return 12;
+      if (tag === "M30") return 10;
+      if (tag === "H1") return 8;
+      return 12;
+    }
+
+    function persistChartMemoryNow() {
+      if (!memory) return;
+      memory.saveChartPrefs({
+        selectedSymbol: state.selectedSymbol,
+        chartTf: state.chartTf,
+        chartVisibleCount: state.chartVisibleCount,
+        chartPanBars: state.chartPanBars,
+        chartYZoom: state.chartYZoom,
+        chartYShift: state.chartYShift,
+        chartFreeMove: state.chartFreeMove,
+        allowedSymbols: state.allowedSymbols
+      });
+    }
+
+    function schedulePersistChartMemory() {
+      if (!memory) return;
+      if (state.memoryPersistTimer) clearTimeout(state.memoryPersistTimer);
+      state.memoryPersistTimer = setTimeout(() => {
+        persistChartMemoryNow();
+        state.memoryPersistTimer = null;
+      }, 400);
+    }
+
+    function restoreChartMemoryBootstrap() {
+      if (!memory) return;
+      const prefs = memory.loadChartPrefs();
+      if (!prefs || typeof prefs !== "object") return;
+      if (Array.isArray(prefs.allowedSymbols) && prefs.allowedSymbols.length) {
+        el.allowedSymbol1.value = prefs.allowedSymbols[0] || el.allowedSymbol1.value;
+        if (prefs.allowedSymbols[1]) el.allowedSymbol2.value = prefs.allowedSymbols[1];
+      }
+      const tf = normalizeTf(prefs.chartTf || "");
+      if (tf) {
+        state.chartTf = tf;
+        el.chartTf.value = tf;
+      }
+      state.preferredSymbol = normalizeSymbol(prefs.selectedSymbol || "");
+      state.chartVisibleCount = clampNumber(Math.round(Number(prefs.chartVisibleCount || state.chartVisibleCount || 150)), 40, MAX_LOCAL_BARS);
+      state.chartPanBars = Math.max(0, Math.round(Number(prefs.chartPanBars || 0)));
+      state.chartYZoom = clampNumber(Number(prefs.chartYZoom || 1), 0.5, 6);
+      state.chartYShift = Number(prefs.chartYShift || 0);
+      state.chartFreeMove = !!prefs.chartFreeMove;
+    }
+
+    function restoreCachedCandlesFor(symbol, tf) {
+      if (!memory) return false;
+      const sym = normalizeSymbol(symbol);
+      if (!sym) return false;
+      const key = chartKey(sym, tf);
+      const payload = memory.getCandles(sym, tf);
+      const bars = Array.isArray(payload?.bars) ? payload.bars : [];
+      if (!bars.length) return false;
+      state.marketCandles[key] = bars.slice(-MAX_LOCAL_BARS);
+      const learn = memory.getLearningSummary(sym, tf, learningHorizonForTf(tf), 0.0002);
+      if (learn && typeof learn === "object") {
+        state.memoryLearning[key] = learn;
+      }
+      return true;
+    }
+
+    function refreshLearningMemory(symbol, tf, candles) {
+      if (!memory) return;
+      const sym = normalizeSymbol(symbol);
+      if (!sym || !Array.isArray(candles) || !candles.length) return;
+      const horizon = learningHorizonForTf(tf);
+      const learn = memory.ingestLearning(sym, tf, candles, { horizonBars: horizon, flatThresholdPct: 0.0002 });
+      if (learn && typeof learn === "object") {
+        const key = chartKey(sym, tf);
+        state.memoryLearning[key] = learn;
+      }
+    }
 
     function log(message, remote = false) {
       const key = remote ? `r:${message}` : `l:${message}`;
@@ -1448,6 +1537,7 @@ Mode: IDLE</div>
       }
       setAllowedSymbols(symbols, true);
       if (logChange) log(`Allowed markets set: ${symbols.join(", ")}`);
+      schedulePersistChartMemory();
       return true;
     }
 
@@ -1512,21 +1602,36 @@ Mode: IDLE</div>
         el.chartSymbol.appendChild(opt);
       });
 
-      const next = symbols.includes(prev) ? prev : (symbols.includes(state.selectedSymbol) ? state.selectedSymbol : symbols[0]);
+      const preferred = normalizeSymbol(state.preferredSymbol || "");
+      const next = symbols.includes(prev) ? prev : (symbols.includes(state.selectedSymbol) ? state.selectedSymbol : (preferred && symbols.includes(preferred) ? preferred : symbols[0]));
       state.selectedSymbol = next;
+      state.preferredSymbol = "";
       el.chartSymbol.value = next;
+      restoreCachedCandlesFor(next, state.chartTf);
       fetchMarketCandles(false).catch(() => {});
     }
 
     async function fetchMarketCandles(force = false) {
-      if (!state.selectedSymbol || !state.backendApiOnline) return;
+      if (!state.selectedSymbol) return;
       const tf = el.chartTf.value || "M1";
       if (!force && state.chartTf !== tf) state.chartTf = tf;
       const sym = state.selectedSymbol;
       const key = chartKey(sym, state.chartTf);
+      const cachedReady = restoreCachedCandlesFor(sym, state.chartTf);
+      if (!state.backendApiOnline) {
+        if (cachedReady) drawMarketChart();
+        return;
+      }
       try {
         const data = await api(`/api/market/candles?symbol=${encodeURIComponent(sym)}&tf=${encodeURIComponent(state.chartTf)}&count=320&since_running=0`);
-        state.marketCandles[key] = data.candles || [];
+        const incoming = Array.isArray(data.candles) ? data.candles : [];
+        let mergedCandles = incoming;
+        if (memory) {
+          const payload = memory.upsertCandles(sym, state.chartTf, incoming, MAX_LOCAL_BARS);
+          mergedCandles = Array.isArray(payload?.bars) ? payload.bars : incoming;
+        }
+        state.marketCandles[key] = mergedCandles.slice(-MAX_LOCAL_BARS);
+        refreshLearningMemory(sym, state.chartTf, state.marketCandles[key]);
         const structure = data.structure || {};
         const incomingPoints = Array.isArray(structure.points) ? structure.points : [];
         const incomingFvg = Array.isArray(structure.fvg) ? structure.fvg : [];
@@ -1548,8 +1653,11 @@ Mode: IDLE</div>
           };
         }
         drawMarketChart();
+        schedulePersistChartMemory();
       } catch (err) {
-        if (force) log(`Chart data error: ${err.message}`);
+        const restored = restoreCachedCandlesFor(sym, state.chartTf);
+        if (restored) drawMarketChart();
+        if (force) log(`Chart data error: ${err.message}${restored ? " (loaded local cache)" : ""}`);
       }
     }
 
@@ -2313,7 +2421,7 @@ Mode: IDLE</div>
       }
 
       const key = chartKey(symbol, state.chartTf);
-      const fullCandles = (state.marketCandles[key] || []).slice(-320);
+      const fullCandles = (state.marketCandles[key] || []).slice(-MAX_LOCAL_BARS);
       if (fullCandles.length < 2) {
         el.chartMeta.textContent = `${symbol} ${state.chartTf} - waiting for candles`;
         drawEmptyChart(ctx, width, height, "Not enough candle data");
@@ -2491,7 +2599,12 @@ Mode: IDLE</div>
       const t1 = formatTimeLabel(last.time);
       const structCount = Array.isArray(structure.points) ? structure.points.length : 0;
       const fvgCount = Array.isArray(structure.fvg) ? structure.fvg.length : 0;
-      el.chartMeta.textContent = `${symbol} ${state.chartTf} | O ${formatPrice(last.open, digits)} H ${formatPrice(last.high, digits)} L ${formatPrice(last.low, digits)} C ${formatPrice(last.close, digits)} | ${sign}${formatPrice(delta, digits)} | ${t0} - ${t1} | ${candles.length}/${fullCandles.length} bars | HH/HL/LH/LL: ${structCount} | FVG: ${fvgCount} | Yx${state.chartYZoom.toFixed(2)}`;
+      const learn = state.memoryLearning[key] || null;
+      const learnSamples = Math.max(0, Number(learn?.samples || 0));
+      const learnBias = learnSamples > 0 ? String(learn.bias || "neutral").toUpperCase() : "";
+      const memMeta = learnSamples > 0 ? ` | MEM ${learnBias} S:${learnSamples}` : "";
+      el.chartMeta.textContent = `${symbol} ${state.chartTf} | O ${formatPrice(last.open, digits)} H ${formatPrice(last.high, digits)} L ${formatPrice(last.low, digits)} C ${formatPrice(last.close, digits)} | ${sign}${formatPrice(delta, digits)} | ${t0} - ${t1} | ${candles.length}/${fullCandles.length} bars | HH/HL/LH/LL: ${structCount} | FVG: ${fvgCount} | Yx${state.chartYZoom.toFixed(2)}${memMeta}`;
+      schedulePersistChartMemory();
     }
 
     function applyChartZoom(direction, anchorX = null) {
@@ -2540,6 +2653,7 @@ Mode: IDLE</div>
         state.chartPinchMode = false;
         state.chartPointerSamples = {};
       }
+      schedulePersistChartMemory();
     }
 
     function onChartWheel(evt) {
@@ -3034,6 +3148,7 @@ Mode: IDLE</div>
         state.selectedDrawingIndex = -1;
         syncMarketContext(false).catch(() => {});
         fetchMarketCandles(true).catch(() => {});
+        schedulePersistChartMemory();
       });
       el.applySymbolsBtn.addEventListener("click", () => {
         if (!applyAllowedSymbols(true)) return;
@@ -3058,6 +3173,7 @@ Mode: IDLE</div>
         state.chartVisibleCount = Math.min(150, Math.max(60, state.chartTotalCount || 150));
         syncMarketContext(false).catch(() => {});
         fetchMarketCandles(true).catch(() => {});
+        schedulePersistChartMemory();
       });
       el.toolTrend.addEventListener("click", () => setChartTool(state.chartTool === "trend" ? "none" : "trend"));
       el.toolPoly.addEventListener("click", () => setChartTool(state.chartTool === "poly" ? "none" : "poly"));
@@ -3112,7 +3228,9 @@ Mode: IDLE</div>
         stopPolling();
         state.marketCandles = {};
         state.marketStructure = {};
+        restoreCachedCandlesFor(state.selectedSymbol, state.chartTf);
         renderInsight(buildFallbackInsight());
+        drawMarketChart();
         if (state.authenticated) log("Backend API URL changed. Click Connect Backend to retry.");
       });
       initPanels();
@@ -3124,17 +3242,24 @@ Mode: IDLE</div>
     wire();
     setBackendApiState(false, "Disconnected");
     setBrokerStatus(false, "Disconnected");
-    state.chartTf = el.chartTf.value || "M1";
+    restoreChartMemoryBootstrap();
+    state.chartTf = normalizeTf(el.chartTf.value || state.chartTf || "M1");
+    el.chartTf.value = state.chartTf;
     applyAllowedSymbols(false);
+    if (state.preferredSymbol && state.allowedSymbols.includes(state.preferredSymbol)) {
+      state.selectedSymbol = state.preferredSymbol;
+    }
     setChartTool("none");
-    setFreeMove(false);
+    setFreeMove(state.chartFreeMove);
     el.setFile.disabled = true;
     el.setFileName.textContent = "No .set loaded";
     loadSession();
     renderLive([]);
     renderHistory([]);
     renderInsight(buildFallbackInsight());
+    if (state.selectedSymbol) restoreCachedCandlesFor(state.selectedSymbol, state.chartTf);
     drawMarketChart();
+    if (memory) log(`Local memory active (${MAX_LOCAL_BARS} bars max per symbol/TF).`);
     log("Dashboard initialized");
   </script>
 </body>
