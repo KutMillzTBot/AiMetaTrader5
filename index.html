@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KutEA26 - EA Control Dashboard</title>
+  <title>Kut Milz EA - Control Dashboard</title>
   <style>
     :root {
       --bg: #0b1220;
@@ -402,6 +402,67 @@
       line-height: 1.4;
       white-space: pre-line;
     }
+    .tag-stats-card {
+      grid-column: span 12;
+      border: 1px solid #2b3e60;
+      border-radius: 10px;
+      padding: 10px;
+      background: #0e1a31;
+    }
+    .tag-stats-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .tag-stats-head .hint {
+      margin: 0;
+      font-size: 0.78rem;
+    }
+    .tag-stats-table {
+      max-height: 170px;
+      overflow: auto;
+      border: 1px solid #2b3e60;
+      border-radius: 8px;
+    }
+    .tag-stats-row {
+      display: grid;
+      grid-template-columns: 1.8fr 0.6fr 0.6fr 0.6fr 1fr;
+      gap: 8px;
+      padding: 7px 8px;
+      border-bottom: 1px solid #233553;
+      font-size: 0.8rem;
+      color: #c7d9fb;
+      align-items: center;
+    }
+    .tag-stats-row:last-child { border-bottom: none; }
+    .tag-stats-row.header {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #132542;
+      color: #9fbce8;
+      font-weight: 600;
+    }
+    .tag-status {
+      justify-self: start;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #32537e;
+      font-size: 0.72rem;
+      white-space: nowrap;
+    }
+    .tag-status.active {
+      border-color: #1f6f50;
+      color: #9effd3;
+      background: rgba(35, 209, 139, 0.14);
+    }
+    .tag-status.paused {
+      border-color: #7a4f24;
+      color: #ffd8a6;
+      background: rgba(255, 180, 84, 0.14);
+    }
     .btn-close-trade {
       width: auto;
       padding: 10px 14px;
@@ -589,6 +650,22 @@
 Waiting: Connect broker and start EA
 Mode: IDLE</div>
             </div>
+            <div class="tag-stats-card">
+              <div class="tag-stats-head">
+                <div class="insight-title" style="margin:0;">Setup Tag Stats</div>
+                <p id="tagStatsUpdated" class="hint">No telemetry yet</p>
+                <p id="tagStatsSummary" class="hint">Active: 0 | Paused: 0</p>
+              </div>
+              <div id="tagStatsTable" class="tag-stats-table">
+                <div class="tag-stats-row header">
+                  <span>Tag</span>
+                  <span>S</span>
+                  <span>W</span>
+                  <span>L</span>
+                  <span>Status</span>
+                </div>
+              </div>
+            </div>
           </div>
         </article>
 
@@ -769,6 +846,8 @@ Mode: IDLE</div>
       sessionInsight: {
         session: { realized: 0, floating: 0, total: 0, trades: 0, wins: 0, losses: 0 },
         bot_state: { mode: "IDLE", thinking: "Idle", waiting_for: "Connect broker and start EA", active: "None" },
+        tag_stats: [],
+        tag_stats_updated_at: null
       },
       selectedSymbol: "",
       allowedSymbols: [],
@@ -814,6 +893,9 @@ Mode: IDLE</div>
       sessionPnlMeta: document.getElementById("sessionPnlMeta"),
       botThinkingValue: document.getElementById("botThinkingValue"),
       botActivityMeta: document.getElementById("botActivityMeta"),
+      tagStatsUpdated: document.getElementById("tagStatsUpdated"),
+      tagStatsSummary: document.getElementById("tagStatsSummary"),
+      tagStatsTable: document.getElementById("tagStatsTable"),
       runStateChip: document.getElementById("runStateChip"),
       navLinks: Array.from(document.querySelectorAll(".nav-link[data-target]")),
       panels: Array.from(document.querySelectorAll(".section-panel")),
@@ -1523,6 +1605,14 @@ Mode: IDLE</div>
       return `${n >= 0 ? "+" : ""}${n.toFixed(digits)}`;
     }
 
+    function escHtml(v) {
+      return String(v ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
     function formatTimeLabel(unixTs) {
       return new Date(Number(unixTs) * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     }
@@ -1564,8 +1654,47 @@ Mode: IDLE</div>
           thinking,
           waiting_for: waiting,
           active
-        }
+        },
+        tag_stats: [],
+        tag_stats_updated_at: null
       };
+    }
+
+    function renderTagStats(insight) {
+      const rowsRaw = Array.isArray(insight?.tag_stats) ? insight.tag_stats : [];
+      const updated = insight?.tag_stats_updated_at ? String(insight.tag_stats_updated_at) : "";
+      el.tagStatsUpdated.textContent = updated ? `Updated: ${updated}` : "No telemetry yet";
+      let activeCount = 0;
+      let pausedCount = 0;
+      const rows = rowsRaw.slice().sort((a, b) => {
+        const ap = String(a?.status || "").toLowerCase() === "paused" ? 0 : 1;
+        const bp = String(b?.status || "").toLowerCase() === "paused" ? 0 : 1;
+        if (ap !== bp) return ap - bp;
+        return Number(b?.samples || 0) - Number(a?.samples || 0);
+      }).slice(0, 40);
+
+      const head = `<div class="tag-stats-row header"><span>Tag</span><span>S</span><span>W</span><span>L</span><span>Status</span></div>`;
+      if (!rows.length) {
+        el.tagStatsSummary.textContent = "Active: 0 | Paused: 0";
+        el.tagStatsTable.innerHTML = `${head}<div class="tag-stats-row"><span>Waiting for tag data...</span><span>0</span><span>0</span><span>0</span><span class="tag-status active">Active</span></div>`;
+        return;
+      }
+
+      const body = rows.map(r => {
+        const tag = escHtml(r.tag || "-");
+        const s = Number(r.samples || 0);
+        const w = Number(r.wins || 0);
+        const l = Number(r.losses || 0);
+        const bars = Math.max(0, Number(r.bars_left || 0));
+        const paused = String(r.status || "").toLowerCase() === "paused" || bars > 0;
+        if (paused) pausedCount += 1;
+        else activeCount += 1;
+        const statusLabel = paused ? `Paused (${bars} bars)` : "Active";
+        const statusClass = paused ? "paused" : "active";
+        return `<div class="tag-stats-row"><span title="${tag}">${tag}</span><span>${s}</span><span>${w}</span><span>${l}</span><span class="tag-status ${statusClass}">${escHtml(statusLabel)}</span></div>`;
+      }).join("");
+      el.tagStatsSummary.textContent = `Active: ${activeCount} | Paused: ${pausedCount}`;
+      el.tagStatsTable.innerHTML = head + body;
     }
 
     function renderInsight(insightRaw = null) {
@@ -1592,6 +1721,7 @@ Mode: IDLE</div>
       el.botModeChip.textContent = `Bot: ${mode}`;
       el.botThinkingValue.textContent = thinking;
       el.botActivityMeta.textContent = `Active: ${active}\nWaiting: ${waiting}\nMode: ${mode}`;
+      renderTagStats(insight);
     }
 
     function findClosestCandleIndexByTime(candles, unixTs) {
