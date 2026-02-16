@@ -409,6 +409,82 @@
       padding: 10px;
       background: #0e1a31;
     }
+    .analytics-card {
+      grid-column: span 12;
+      border: 1px solid #2b3e60;
+      border-radius: 10px;
+      padding: 10px;
+      background: #0e1a31;
+    }
+    .analytics-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .analytics-top {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .analytics-mini {
+      border: 1px solid #2a3a58;
+      border-radius: 8px;
+      padding: 8px;
+      background: #12203a;
+    }
+    .analytics-mini .label {
+      font-size: 0.74rem;
+      color: #95aed8;
+      margin-bottom: 3px;
+    }
+    .analytics-mini .value {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #e4efff;
+    }
+    .analytics-list {
+      border: 1px solid #2b3e60;
+      border-radius: 8px;
+      max-height: 150px;
+      overflow: auto;
+    }
+    .analytics-row {
+      display: grid;
+      grid-template-columns: 1.8fr 0.7fr 1fr;
+      gap: 8px;
+      padding: 7px 8px;
+      border-bottom: 1px solid #233553;
+      font-size: 0.8rem;
+      color: #c7d9fb;
+      align-items: center;
+    }
+    .analytics-row:last-child { border-bottom: none; }
+    .analytics-row.header {
+      background: #132542;
+      color: #9fbce8;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .watchdog-alert {
+      margin-top: 8px;
+      border: 1px solid #2e4369;
+      border-radius: 8px;
+      padding: 8px;
+      background: #0f1d35;
+      color: #c8dbff;
+      font-size: 0.8rem;
+      white-space: pre-line;
+    }
+    .watchdog-alert.bad {
+      border-color: #7a3540;
+      background: #271620;
+      color: #ffd4db;
+    }
     .tag-stats-head {
       display: flex;
       justify-content: space-between;
@@ -650,6 +726,31 @@
 Waiting: Connect broker and start EA
 Mode: IDLE</div>
             </div>
+            <div class="analytics-card">
+              <div class="analytics-head">
+                <div class="insight-title" style="margin:0;">Analytics + Watchdog</div>
+                <p id="analyticsUpdated" class="hint">No analytics yet</p>
+              </div>
+              <div class="analytics-top">
+                <div class="analytics-mini">
+                  <div class="label">Win Rate (7d)</div>
+                  <div id="analyticsWinRateValue" class="value">0.00%</div>
+                </div>
+                <div class="analytics-mini">
+                  <div class="label">Total P/L (7d)</div>
+                  <div id="analyticsPnlValue" class="value">0.00</div>
+                </div>
+                <div class="analytics-mini">
+                  <div class="label">Trades (7d)</div>
+                  <div id="analyticsTradesValue" class="value">0</div>
+                </div>
+              </div>
+              <div id="analyticsSymbols" class="analytics-list">
+                <div class="analytics-row header"><span>Symbol</span><span>Trades</span><span>P/L</span></div>
+                <div class="analytics-row"><span>Waiting for analytics...</span><span>0</span><span>0.00</span></div>
+              </div>
+              <div id="watchdogAlertBox" class="watchdog-alert">Watchdog: waiting for status...</div>
+            </div>
             <div class="tag-stats-card">
               <div class="tag-stats-head">
                 <div class="insight-title" style="margin:0;">Setup Tag Stats</div>
@@ -857,7 +958,10 @@ Mode: IDLE</div>
       activePanel: "brokerPanel",
       seenLogs: new Set(),
       poller: null,
-      memoryPersistTimer: null
+      memoryPersistTimer: null,
+      analyticsSummary: null,
+      watchdogStatus: null,
+      analyticsLastFetchMs: 0
     };
 
     const memory = (typeof window !== "undefined" && window.KutEA26Memory) ? window.KutEA26Memory : null;
@@ -903,6 +1007,12 @@ Mode: IDLE</div>
       tagStatsUpdated: document.getElementById("tagStatsUpdated"),
       tagStatsSummary: document.getElementById("tagStatsSummary"),
       tagStatsTable: document.getElementById("tagStatsTable"),
+      analyticsUpdated: document.getElementById("analyticsUpdated"),
+      analyticsWinRateValue: document.getElementById("analyticsWinRateValue"),
+      analyticsPnlValue: document.getElementById("analyticsPnlValue"),
+      analyticsTradesValue: document.getElementById("analyticsTradesValue"),
+      analyticsSymbols: document.getElementById("analyticsSymbols"),
+      watchdogAlertBox: document.getElementById("watchdogAlertBox"),
       runStateChip: document.getElementById("runStateChip"),
       navLinks: Array.from(document.querySelectorAll(".nav-link[data-target]")),
       panels: Array.from(document.querySelectorAll(".section-panel")),
@@ -1125,6 +1235,11 @@ Mode: IDLE</div>
       state.authenticated = ok;
       el.lockScreen.classList.toggle("hidden", ok);
       el.app.classList.toggle("hidden", !ok);
+      // Prevent hidden login form from capturing implicit submit events after auth.
+      const loginCtrls = el.loginForm ? Array.from(el.loginForm.querySelectorAll("input, button")) : [];
+      loginCtrls.forEach(ctrl => {
+        ctrl.disabled = !!ok;
+      });
     }
 
     function loadSession() {
@@ -1803,6 +1918,75 @@ Mode: IDLE</div>
       }).join("");
       el.tagStatsSummary.textContent = `Active: ${activeCount} | Paused: ${pausedCount}`;
       el.tagStatsTable.innerHTML = head + body;
+    }
+
+    function buildFallbackAnalytics() {
+      return {
+        ok: true,
+        window_days: 7,
+        totals: { trades: 0, wins: 0, losses: 0, pnl: 0, win_rate_pct: 0 },
+        by_symbol: []
+      };
+    }
+
+    function buildFallbackWatchdog() {
+      return {
+        ok: true,
+        watchdog: {
+          enabled: false,
+          recover_attempts: 0,
+          recover_success: 0,
+          last_alert: "",
+          last_snapshot_ok_at: null
+        }
+      };
+    }
+
+    function renderAnalytics(analyticsRaw = null, watchdogRaw = null) {
+      const analytics = analyticsRaw && typeof analyticsRaw === "object" ? analyticsRaw : buildFallbackAnalytics();
+      const totals = analytics?.totals && typeof analytics.totals === "object" ? analytics.totals : {};
+      const winRate = Number(totals.win_rate_pct || 0);
+      const pnl = Number(totals.pnl || 0);
+      const trades = Number(totals.trades || 0);
+      const days = Number(analytics.window_days || 7);
+      el.analyticsWinRateValue.textContent = `${winRate.toFixed(2)}%`;
+      el.analyticsPnlValue.textContent = formatSignedMoney(pnl, 2);
+      el.analyticsPnlValue.classList.toggle("insight-pos", pnl >= 0);
+      el.analyticsPnlValue.classList.toggle("insight-neg", pnl < 0);
+      el.analyticsTradesValue.textContent = `${trades}`;
+
+      const rowsRaw = Array.isArray(analytics.by_symbol) ? analytics.by_symbol.slice(0, 10) : [];
+      const head = `<div class="analytics-row header"><span>Symbol</span><span>Trades</span><span>P/L</span></div>`;
+      if (!rowsRaw.length) {
+        el.analyticsSymbols.innerHTML = `${head}<div class="analytics-row"><span>Waiting for analytics...</span><span>0</span><span>0.00</span></div>`;
+      } else {
+        const body = rowsRaw.map(row => {
+          const sym = escHtml(String(row.symbol || "-"));
+          const t = Number(row.trades || 0);
+          const p = Number(row.pnl || 0);
+          const pText = formatSignedMoney(p, 2);
+          return `<div class="analytics-row"><span>${sym}</span><span>${t}</span><span style="color:${p >= 0 ? "var(--ok)" : "var(--bad)"}">${pText}</span></div>`;
+        }).join("");
+        el.analyticsSymbols.innerHTML = head + body;
+      }
+
+      const wdWrap = watchdogRaw && typeof watchdogRaw === "object" ? watchdogRaw : buildFallbackWatchdog();
+      const wd = wdWrap?.watchdog && typeof wdWrap.watchdog === "object" ? wdWrap.watchdog : {};
+      const wdEnabled = !!wd.enabled;
+      const wdAttempts = Number(wd.recover_attempts || 0);
+      const wdSuccess = Number(wd.recover_success || 0);
+      const wdLastAlert = String(wd.last_alert || "").trim();
+      const wdLastOk = String(wd.last_snapshot_ok_at || "").trim();
+      const wdLine1 = `Watchdog: ${wdEnabled ? "On" : "Off"} | Recover: ${wdSuccess}/${wdAttempts} | Window: ${days}d`;
+      const wdLine2 = wdLastAlert ? wdLastAlert : (wdLastOk ? `Last MT5 Snapshot: ${wdLastOk}` : "No watchdog alert");
+      const wdBad = wdEnabled && wdLastAlert && /stale|failed|error|down|unauthorized/i.test(wdLastAlert);
+      el.watchdogAlertBox.classList.toggle("bad", !!wdBad);
+      el.watchdogAlertBox.textContent = `${wdLine1}\n${wdLine2}`;
+
+      const updatedLabel = state.analyticsLastFetchMs > 0
+        ? new Date(state.analyticsLastFetchMs).toLocaleTimeString()
+        : "No analytics yet";
+      el.analyticsUpdated.textContent = state.analyticsLastFetchMs > 0 ? `Updated: ${updatedLabel}` : updatedLabel;
     }
 
     function renderInsight(insightRaw = null) {
@@ -3072,13 +3256,23 @@ Mode: IDLE</div>
     async function pollBackend() {
       if (!state.authenticated) return;
       try {
-        const [broker, ea, live, hist, logs, insight] = await Promise.all([
+        const nowMs = Date.now();
+        const refreshAnalytics = (nowMs - Number(state.analyticsLastFetchMs || 0)) >= 5000;
+        const analyticsReq = refreshAnalytics
+          ? api("/api/analytics/summary?days=7").catch(() => null)
+          : Promise.resolve(state.analyticsSummary);
+        const watchdogReq = refreshAnalytics
+          ? api("/api/watchdog/status").catch(() => null)
+          : Promise.resolve(state.watchdogStatus);
+        const [broker, ea, live, hist, logs, insight, analyticsRes, watchdogRes] = await Promise.all([
           api("/api/broker/status"),
           api("/api/ea/status"),
           api("/api/trades/live"),
           api("/api/trades/history"),
           api("/api/logs"),
-          api("/api/ea/insight").catch(() => null)
+          api("/api/ea/insight").catch(() => null),
+          analyticsReq,
+          watchdogReq
         ]);
         setBackendApiState(true, "Connected");
         setBrokerStatus(broker.connected, broker.connected ? "Connected" : "Disconnected");
@@ -3102,6 +3296,15 @@ Mode: IDLE</div>
         renderLive(state.trades);
         renderHistory(state.history);
         renderInsight(insight);
+        if (analyticsRes && typeof analyticsRes === "object" && analyticsRes.ok !== false) {
+          state.analyticsSummary = analyticsRes;
+          state.analyticsLastFetchMs = nowMs;
+        }
+        if (watchdogRes && typeof watchdogRes === "object" && watchdogRes.ok !== false) {
+          state.watchdogStatus = watchdogRes;
+          state.analyticsLastFetchMs = nowMs;
+        }
+        renderAnalytics(state.analyticsSummary, state.watchdogStatus);
         syncChartSymbolOptions();
         await fetchMarketCandles(false);
         (logs.logs || []).forEach(item => log(item.msg || "", true));
@@ -3110,6 +3313,7 @@ Mode: IDLE</div>
         setBrokerStatus(false, "Disconnected");
         setEngineState(false);
         renderInsight(buildFallbackInsight());
+        renderAnalytics(state.analyticsSummary || buildFallbackAnalytics(), state.watchdogStatus || buildFallbackWatchdog());
         if (!isFileMode()) log(`Backend poll error: ${err.message}`);
       }
     }
@@ -3126,6 +3330,13 @@ Mode: IDLE</div>
     }
 
     function wire() {
+      // Guard against unexpected submits from injected/browser forms.
+      document.addEventListener("submit", (evt) => {
+        if (evt.target !== el.loginForm) {
+          evt.preventDefault();
+          evt.stopPropagation();
+        }
+      }, true);
       el.loginForm.addEventListener("submit", handleLogin);
       el.logoutBtn.addEventListener("click", logout);
       el.backendApiBtn.addEventListener("click", toggleBackendApi);
@@ -3221,6 +3432,16 @@ Mode: IDLE</div>
         else if (v === "MetaTrader5") el.compatibilityLabel.textContent = "Direct MT5 Execution Mode";
         else el.compatibilityLabel.textContent = "Broker accepted by MetaTrader5";
       });
+      // Stop Enter in broker/API inputs from causing page submit/reload behavior.
+      [el.apiBase, el.brokerLogin, el.brokerPassword, el.brokerServer, el.brokerTerminalPath].forEach(ctrl => {
+        if (!ctrl) return;
+        ctrl.addEventListener("keydown", (evt) => {
+          if (evt.key === "Enter") {
+            evt.preventDefault();
+            evt.stopPropagation();
+          }
+        });
+      });
       el.apiBase.addEventListener("change", () => {
         state.apiSessionToken = "";
         setBackendApiState(false, "Disconnected");
@@ -3228,8 +3449,12 @@ Mode: IDLE</div>
         stopPolling();
         state.marketCandles = {};
         state.marketStructure = {};
+        state.analyticsSummary = null;
+        state.watchdogStatus = null;
+        state.analyticsLastFetchMs = 0;
         restoreCachedCandlesFor(state.selectedSymbol, state.chartTf);
         renderInsight(buildFallbackInsight());
+        renderAnalytics(buildFallbackAnalytics(), buildFallbackWatchdog());
         drawMarketChart();
         if (state.authenticated) log("Backend API URL changed. Click Connect Backend to retry.");
       });
@@ -3257,6 +3482,7 @@ Mode: IDLE</div>
     renderLive([]);
     renderHistory([]);
     renderInsight(buildFallbackInsight());
+    renderAnalytics(buildFallbackAnalytics(), buildFallbackWatchdog());
     if (state.selectedSymbol) restoreCachedCandlesFor(state.selectedSymbol, state.chartTf);
     drawMarketChart();
     if (memory) log(`Local memory active (${MAX_LOCAL_BARS} bars max per symbol/TF).`);
