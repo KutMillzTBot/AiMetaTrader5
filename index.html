@@ -195,8 +195,12 @@
     }
     .section-panel.active { display: block; }
     .row { display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px; }
+    .col-2 { grid-column: span 2; }
+    .col-3 { grid-column: span 3; }
     .col-4 { grid-column: span 4; }
+    .col-5 { grid-column: span 5; }
     .col-6 { grid-column: span 6; }
+    .col-8 { grid-column: span 8; }
     .col-12 { grid-column: span 12; }
     .status {
       display: inline-flex;
@@ -239,6 +243,10 @@
       text-align: left;
       white-space: nowrap;
     }
+    tr.clickable-row { cursor: pointer; }
+    tr.clickable-row:hover {
+      background: rgba(63, 118, 199, 0.14);
+    }
     thead { background: #0f1a2f; }
     .pnl-pos { color: var(--ok); }
     .pnl-neg { color: var(--bad); }
@@ -254,6 +262,319 @@
     }
     .log-line { margin: 0 0 6px; color: #aecdff; }
     .log-line .t { color: #7aa8ff; }
+    .trigger-flow-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .trigger-flow-count {
+      font-size: 0.85rem;
+      color: #8ea2cc;
+    }
+    .btn-secondary {
+      background: #18325a;
+      border-color: #274776;
+      color: #dce9ff;
+    }
+    .trigger-flow-line {
+      color: #b6f4db;
+    }
+    .trigger-flow-line .t {
+      color: #52cfa0;
+    }
+    .trigger-flow-badge {
+      display: inline-block;
+      min-width: 62px;
+      margin-right: 7px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 0.73rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      text-align: center;
+      border: 1px solid transparent;
+    }
+    .trigger-flow-badge.pending {
+      color: #ffe9a8;
+      background: rgba(191, 136, 16, 0.26);
+      border-color: rgba(233, 180, 62, 0.48);
+    }
+    .trigger-flow-badge.blocked {
+      color: #ffd2d8;
+      background: rgba(172, 48, 70, 0.28);
+      border-color: rgba(223, 96, 118, 0.52);
+    }
+    .trigger-flow-badge.success {
+      color: #cafbe4;
+      background: rgba(20, 119, 85, 0.28);
+      border-color: rgba(58, 200, 147, 0.52);
+    }
+    .trigger-flow-badge.error {
+      color: #ffe6bf;
+      background: rgba(153, 81, 24, 0.30);
+      border-color: rgba(232, 140, 60, 0.52);
+    }
+    .trigger-flow-badge.info {
+      color: #d5e7ff;
+      background: rgba(37, 83, 153, 0.30);
+      border-color: rgba(106, 160, 238, 0.52);
+    }
+    .trigger-flow-line.trigger-flow-pending { color: #ffeec2; }
+    .trigger-flow-line.trigger-flow-blocked { color: #ffd8de; }
+    .trigger-flow-line.trigger-flow-success { color: #c9fbe3; }
+    .trigger-flow-line.trigger-flow-error { color: #ffe8c9; }
+    .trigger-flow-line.trigger-flow-info { color: #d9e8ff; }
+    .trade-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(3, 8, 16, 0.74);
+      padding: 18px;
+    }
+    .trade-modal.show { display: flex; }
+    .trade-modal-card {
+      width: min(780px, 100%);
+      border: 1px solid #36507d;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #10203a, #0d1a31);
+      box-shadow: 0 22px 44px rgba(0, 0, 0, 0.45);
+      overflow: hidden;
+    }
+    .trade-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid #2b4168;
+      background: #122746;
+    }
+    .trade-modal-title {
+      margin: 0;
+      font-size: 1rem;
+      color: #e4efff;
+    }
+    .trade-modal-close {
+      width: auto;
+      min-width: 42px;
+      border-radius: 8px;
+      border: 1px solid #3e5f95;
+      background: #173258;
+      color: #dce9ff;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+    .trade-modal-body {
+      padding: 12px 14px 14px;
+    }
+    .trade-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .trade-detail-item {
+      border: 1px solid #294269;
+      border-radius: 10px;
+      background: #0f1d34;
+      padding: 8px;
+    }
+    .trade-detail-item .k {
+      color: #97b3df;
+      font-size: 0.76rem;
+      margin-bottom: 3px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .trade-detail-item .v {
+      color: #e3efff;
+      font-size: 0.92rem;
+      word-break: break-word;
+    }
+    #reportPanel {
+      background:
+        radial-gradient(980px 380px at -6% -22%, rgba(42, 128, 255, 0.16), transparent 62%),
+        radial-gradient(860px 300px at 100% 116%, rgba(39, 178, 142, 0.12), transparent 64%),
+        linear-gradient(180deg, #0e1b33, #0d172d);
+    }
+    .report-hero {
+      border: 1px solid #304c78;
+      border-radius: 12px;
+      background: linear-gradient(130deg, rgba(23, 47, 88, 0.78), rgba(18, 36, 67, 0.72));
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      box-shadow: inset 0 1px 0 rgba(170, 206, 255, 0.08);
+    }
+    .report-hero-kicker {
+      margin: 0 0 4px;
+      color: #9fc3f9;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .report-hero-title {
+      margin: 0 0 3px;
+      color: #e6f0ff;
+      font-size: 1.02rem;
+      font-weight: 700;
+    }
+    .report-hero-sub {
+      margin: 0;
+      color: #abc2e9;
+      font-size: 0.82rem;
+    }
+    .report-generated-chip {
+      border: 1px solid #31517f;
+      background: #10213d;
+      color: #cfe2ff;
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 0.78rem;
+      white-space: nowrap;
+    }
+    .report-actions {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+      border: 1px solid #2b436c;
+      border-radius: 12px;
+      background: rgba(14, 30, 56, 0.7);
+      padding: 10px;
+    }
+    .report-btns {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      gap: 8px;
+    }
+    .report-kpis {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .report-kpi {
+      border: 1px solid #2f4f80;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(21, 40, 72, 0.86), rgba(14, 29, 54, 0.9));
+      padding: 11px;
+      box-shadow: inset 0 1px 0 rgba(164, 201, 255, 0.08);
+    }
+    .report-kpi .label {
+      font-size: 0.75rem;
+      color: #9eb8e2;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .report-kpi .value {
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: #e8f1ff;
+    }
+    .report-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 10px;
+    }
+    .report-card {
+      grid-column: span 6;
+      border: 1px solid #2a436c;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(14, 28, 51, 0.95), rgba(11, 22, 42, 0.95));
+      padding: 10px;
+    }
+    .report-card h4 {
+      margin: 0 0 8px;
+      color: #e0ecff;
+      font-size: 0.92rem;
+      letter-spacing: 0.02em;
+      padding-bottom: 7px;
+      border-bottom: 1px solid rgba(88, 123, 179, 0.35);
+    }
+    .report-list {
+      max-height: 210px;
+      overflow: auto;
+      border: 1px solid #253d63;
+      border-radius: 10px;
+      background: #0b162d;
+      padding: 4px 8px;
+    }
+    .report-list .row {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(0, 1fr);
+      gap: 8px;
+      font-size: 0.82rem;
+      color: #bfd3f4;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(121, 152, 211, 0.2);
+      align-items: center;
+    }
+    .report-list .row.header {
+      color: #e3eeff;
+      font-weight: 700;
+      border-bottom: 1px solid rgba(121, 152, 211, 0.38);
+      position: sticky;
+      top: 0;
+      background: #0f1f3c;
+      z-index: 1;
+    }
+    .report-list .row:last-child {
+      border-bottom: none;
+    }
+    .report-wide {
+      grid-column: span 12;
+    }
+    .report-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .report-tab-btn {
+      width: auto;
+      border: 1px solid #35588b;
+      background: #122546;
+      color: #bfd5f8;
+      border-radius: 10px;
+      padding: 7px 11px;
+      font-size: 0.82rem;
+    }
+    .report-tab-btn.active {
+      border-color: #5f94df;
+      background: #1a3561;
+      color: #eff6ff;
+    }
+    .report-tab-panel {
+      display: none;
+      animation: panelFade 180ms ease;
+    }
+    .report-tab-panel.active {
+      display: block;
+    }
+    .report-chart-box {
+      min-height: 180px;
+      border: 1px solid #253d63;
+      border-radius: 10px;
+      background: #0b162d;
+      padding: 10px;
+    }
+    .report-chart-box svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
     .chart-controls {
       display: grid;
       grid-template-columns: repeat(12, 1fr);
@@ -353,7 +674,7 @@
     }
     #marketChart {
       width: 100%;
-      height: 300px;
+      height: 520px;
       display: block;
       touch-action: none;
       cursor: crosshair;
@@ -369,6 +690,80 @@
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
+    }
+    .manual-ticket {
+      margin-top: 12px;
+      border: 1px solid #2b3e60;
+      border-radius: 10px;
+      background: #0d1830;
+      padding: 10px;
+    }
+    .manual-ticket-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .manual-guard-pill {
+      border: 1px solid #7a3540;
+      background: #2a1620;
+      color: #ffd4db;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .manual-guard-pill.ok {
+      border-color: #1f6f50;
+      background: #112a20;
+      color: #b8f9da;
+    }
+    .manual-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .manual-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .unit-field {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px;
+    }
+    .unit-field select {
+      width: 104px;
+      min-width: 104px;
+    }
+    .btn-buy {
+      width: auto;
+      border: 1px solid #1b7b54;
+      background: linear-gradient(180deg, #16a36b, #117f54);
+      color: #e9fff6;
+      padding: 10px 14px;
+      border-radius: 10px;
+    }
+    .btn-sell {
+      width: auto;
+      border: 1px solid #8a3343;
+      background: linear-gradient(180deg, #be4c5f, #923a49);
+      color: #fff2f4;
+      padding: 10px 14px;
+      border-radius: 10px;
+    }
+    .btn-buy:disabled, .btn-sell:disabled, .btn-close-trade:disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+      filter: grayscale(0.1);
+    }
+    .field-hidden {
+      display: none !important;
     }
     .insight-grid {
       display: grid;
@@ -568,9 +963,13 @@
     @media (max-width: 980px) {
       .app { grid-template-columns: 1fr; }
       .sidebar { position: static; height: auto; }
-      .col-4, .col-6 { grid-column: span 12; }
+      .col-2, .col-3, .col-4, .col-5, .col-6, .col-8 { grid-column: span 12; }
       .btn-row { grid-template-columns: 1fr; }
       .insight-card { grid-column: span 12; }
+      .report-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .report-card { grid-column: span 12; }
+      .report-hero { flex-direction: column; align-items: flex-start; }
+      #marketChart { height: 430px; }
       .lock-shell { grid-template-columns: 1fr; max-width: 520px; }
       .lock-brand { order: 2; }
       .auth-card { order: 1; }
@@ -620,7 +1019,9 @@
       <a class="nav-link" href="#marketPanel" data-target="marketPanel">Market Chart</a>
       <a class="nav-link" href="#livePanel" data-target="livePanel">Live Transactions</a>
       <a class="nav-link" href="#historyPanel" data-target="historyPanel">History</a>
+      <a class="nav-link" href="#reportPanel" data-target="reportPanel">Reports</a>
       <a class="nav-link" href="#logPanel" data-target="logPanel">System Log</a>
+      <a class="nav-link" href="#triggerFlowPanel" data-target="triggerFlowPanel">Trigger Flow</a>
       <a id="contactAdminBtn" class="contact-btn" href="https://t.me/KutMilz876" target="_blank" rel="noopener noreferrer">Contact Admin</a>
       <button id="logoutBtn" class="logout-btn">Logout</button>
     </aside>
@@ -628,6 +1029,8 @@
     <section class="content">
       <div class="topbar">
         <div class="chip">EA: KutEA26</div>
+        <div class="chip" id="balanceChip">Balance: 0.00</div>
+        <div class="chip" id="equityChip">Equity: 0.00</div>
         <div class="chip" id="sessionPnlChip">Session P/L: 0.00</div>
         <div class="chip" id="botModeChip">Bot: IDLE</div>
         <div class="chip" id="runStateChip">Engine: Idle</div>
@@ -682,25 +1085,25 @@
         </article>
 
         <article id="uploadPanel" class="card section-panel">
-          <h3>Upload EA (.mq5) + Dynamic Settings</h3>
+          <h3>Upload EA (.ex5/.mq5) + Dynamic Settings</h3>
           <div class="row">
             <div class="col-6">
               <label class="hint">Upload File</label>
-              <input id="mq5File" type="file" accept=".mq5" />
+              <input id="mq5File" type="file" accept=".ex5,.mq5" />
             </div>
             <div class="col-6">
               <label class="hint">Loaded File</label>
               <div id="fileName" class="status">No file loaded</div>
             </div>
             <div class="col-6">
-              <label class="hint">Upload .set (after .mq5)</label>
+              <label class="hint">Upload .set (after EA file)</label>
               <input id="setFile" type="file" accept=".set" disabled />
             </div>
             <div class="col-6">
               <label class="hint">Loaded .set</label>
               <div id="setFileName" class="status">No .set loaded</div>
             </div>
-            <div class="col-12 hint">Only <code>.mq5</code> files are accepted. Inputs are parsed and rendered below.</div>
+            <div class="col-12 hint">Upload <code>.ex5</code> or <code>.mq5</code>. For full dynamic input parsing, upload <code>.mq5</code> at least once.</div>
           </div>
           <hr style="border-color: var(--line); opacity: .5"/>
           <div id="settingsPanel" class="row"></div>
@@ -842,6 +1245,86 @@ Mode: IDLE</div>
           </div>
           <div class="chart-actions">
             <button id="closeTradeBtn" class="btn-close-trade" type="button">Close Trade (Selected Symbol)</button>
+            <button id="dispatchAutomationBtn" class="btn-secondary" type="button">Dispatch MT5 Auto-Attach Command</button>
+          </div>
+          <div class="manual-ticket">
+            <div class="manual-ticket-head">
+              <h4 style="margin:0;">Manual Order Ticket</h4>
+              <div id="manualGuardPill" class="manual-guard-pill">Manual Trade: OFF</div>
+            </div>
+            <div class="manual-grid">
+              <div class="col-3">
+                <label class="hint">Trigger Flow Mode</label>
+                <select id="triggerFlowMode">
+                  <option value="BOTH">Both Sides</option>
+                  <option value="AUTO">Auto Bias</option>
+                  <option value="BUY_ONLY">Buy Only</option>
+                  <option value="SELL_ONLY">Sell Only</option>
+                </select>
+              </div>
+              <div class="col-3">
+                <label class="hint">Manual Trade Mode</label>
+                <select id="manualTradeMode">
+                  <option value="off">Off</option>
+                  <option value="on">On</option>
+                </select>
+              </div>
+              <div class="col-3">
+                <label class="hint">Order Type</label>
+                <select id="manualOrderType">
+                  <option value="MARKET_EXECUTION">Market Execution</option>
+                  <option value="BUY_LIMIT">Buy Limit</option>
+                  <option value="SELL_LIMIT">Sell Limit</option>
+                  <option value="BUY_STOP">Buy Stop</option>
+                  <option value="SELL_STOP">Sell Stop</option>
+                  <option value="BUY_STOP_LIMIT">Buy Stop Limit</option>
+                  <option value="SELL_STOP_LIMIT">Sell Stop Limit</option>
+                </select>
+              </div>
+              <div class="col-3">
+                <label class="hint">Lot Size</label>
+                <input id="manualVolume" type="number" min="0.01" step="0.01" value="0.20" />
+              </div>
+              <div id="manualPriceWrap" class="col-3 field-hidden">
+                <label class="hint">Entry Price (Required)</label>
+                <input id="manualPrice" type="number" step="0.00001" placeholder="Order price" />
+              </div>
+              <div id="manualStopLimitWrap" class="col-3 field-hidden">
+                <label class="hint">Stop Limit Price (Required)</label>
+                <input id="manualStopLimitPrice" type="number" step="0.00001" placeholder="Stop limit trigger price" />
+              </div>
+              <div class="col-3">
+                <label class="hint">Stop Loss (Optional)</label>
+                <div class="unit-field">
+                  <input id="manualSl" type="text" placeholder="e.g. $29 or 19 or 467283.90" />
+                  <select id="manualSlMode">
+                    <option value="PRICE">Price</option>
+                    <option value="PIPS">Pips</option>
+                    <option value="USD">USD</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-3">
+                <label class="hint">Take Profit (Optional)</label>
+                <div class="unit-field">
+                  <input id="manualTp" type="text" placeholder="e.g. $29 or 19 or 467283.90" />
+                  <select id="manualTpMode">
+                    <option value="PRICE">Price</option>
+                    <option value="PIPS">Pips</option>
+                    <option value="USD">USD</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-3">
+                <label class="hint">Comment</label>
+                <input id="manualComment" type="text" maxlength="31" placeholder="KutEA26 manual" />
+              </div>
+            </div>
+            <div class="manual-actions">
+              <button id="manualBuyBtn" class="btn-buy" type="button" disabled>Buy</button>
+              <button id="manualSellBtn" class="btn-sell" type="button" disabled>Sell</button>
+              <span class="hint">Buttons stay locked until Manual Trade Mode is ON.</span>
+            </div>
           </div>
         </article>
 
@@ -853,9 +1336,12 @@ Mode: IDLE</div>
                 <tr>
                   <th>Trade ID</th>
                   <th>Symbol</th>
+                  <th>Side</th>
                   <th>Lot Size</th>
                   <th>Entry Price</th>
                   <th>Current Price</th>
+                  <th>SL</th>
+                  <th>TP</th>
                   <th>Profit/Loss</th>
                   <th>Status</th>
                 </tr>
@@ -872,10 +1358,14 @@ Mode: IDLE</div>
               <thead>
                 <tr>
                   <th>Trade ID</th>
+                  <th>Pos ID</th>
                   <th>Symbol</th>
+                  <th>Side</th>
+                  <th>Lot</th>
                   <th>Entry</th>
                   <th>Exit</th>
                   <th>Profit/Loss</th>
+                  <th>Reason</th>
                   <th>Close Time</th>
                 </tr>
               </thead>
@@ -883,14 +1373,142 @@ Mode: IDLE</div>
             </table>
           </div>
         </article>
+        <article id="reportPanel" class="card section-panel">
+          <h3>Reports</h3>
+          <div class="report-hero">
+            <div>
+              <p class="report-hero-kicker">Analytics Console</p>
+              <p class="report-hero-title">Performance Intelligence</p>
+              <p class="report-hero-sub">Live strengths, weaknesses, and execution quality from your EA history.</p>
+            </div>
+            <div id="reportGenerated" class="report-generated-chip">No report yet</div>
+          </div>
+          <div class="report-actions">
+            <div class="col-3">
+              <label class="hint">Window (Days)</label>
+              <input id="reportDays" type="number" min="1" max="3650" value="30" />
+            </div>
+            <div class="col-8 report-btns">
+              <button id="refreshReportBtn" class="btn-secondary" type="button">Refresh Report</button>
+              <button id="exportReportJsonBtn" class="btn-secondary" type="button">Export JSON</button>
+              <button id="exportReportCsvBtn" class="btn-secondary" type="button">Export CSV</button>
+            </div>
+          </div>
+          <div class="report-kpis">
+            <div class="report-kpi"><div class="label">Total P/L</div><div id="reportTotalPnl" class="value">0.00</div></div>
+            <div class="report-kpi"><div class="label">Win Rate</div><div id="reportWinRate" class="value">0.00%</div></div>
+            <div class="report-kpi"><div class="label">Trades</div><div id="reportTrades" class="value">0</div></div>
+            <div class="report-kpi"><div class="label">Latest Day P/L</div><div id="reportDailyPnl" class="value">0.00</div></div>
+            <div class="report-kpi"><div class="label">Latest Week P/L</div><div id="reportWeeklyPnl" class="value">0.00</div></div>
+          </div>
+          <div class="report-tabs">
+            <button class="report-tab-btn active" data-report-tab="summary" type="button">Summary</button>
+            <button class="report-tab-btn" data-report-tab="pnl" type="button">Profit &amp; Loss</button>
+            <button class="report-tab-btn" data-report-tab="sides" type="button">Long &amp; Short</button>
+            <button class="report-tab-btn" data-report-tab="symbols" type="button">Symbols</button>
+            <button class="report-tab-btn" data-report-tab="risks" type="button">Risks</button>
+          </div>
+          <div id="reportTabSummary" class="report-tab-panel active">
+            <div class="report-grid">
+              <div class="report-card report-wide">
+                <h4>Balance/Equity Curve</h4>
+                <div id="reportCurveSummary" class="report-chart-box"></div>
+              </div>
+              <div class="report-card">
+                <h4>What Is Strong</h4>
+                <div id="reportStrengths" class="report-list"></div>
+              </div>
+              <div class="report-card">
+                <h4>What Is Weak</h4>
+                <div id="reportWeaknesses" class="report-list"></div>
+              </div>
+              <div class="report-card">
+                <h4>Daily Breakdown</h4>
+                <div id="reportByDay" class="report-list"></div>
+              </div>
+              <div class="report-card">
+                <h4>Weekly Breakdown</h4>
+                <div id="reportByWeek" class="report-list"></div>
+              </div>
+              <div class="report-card report-wide">
+                <h4>EA Closed Trades (Recent)</h4>
+                <div id="reportEaTrades" class="report-list"></div>
+              </div>
+            </div>
+          </div>
+          <div id="reportTabPnl" class="report-tab-panel">
+            <div class="report-grid">
+              <div class="report-card report-wide">
+                <h4>Daily P/L Histogram</h4>
+                <div id="reportPnlBars" class="report-chart-box"></div>
+              </div>
+              <div class="report-card report-wide">
+                <h4>Recent Deals (P/L)</h4>
+                <div id="reportRecentDeals" class="report-list"></div>
+              </div>
+            </div>
+          </div>
+          <div id="reportTabSides" class="report-tab-panel">
+            <div class="report-grid">
+              <div class="report-card">
+                <h4>Long vs Short Split</h4>
+                <div id="reportLongShortSplit" class="report-chart-box"></div>
+              </div>
+              <div class="report-card">
+                <h4>Side Quality</h4>
+                <div id="reportSideQuality" class="report-list"></div>
+              </div>
+            </div>
+          </div>
+          <div id="reportTabSymbols" class="report-tab-panel">
+            <div class="report-grid">
+              <div class="report-card report-wide">
+                <h4>Symbol Performance</h4>
+                <div id="reportSymbolBars" class="report-chart-box"></div>
+              </div>
+            </div>
+          </div>
+          <div id="reportTabRisks" class="report-tab-panel">
+            <div class="report-grid">
+              <div class="report-card">
+                <h4>Risk Metrics</h4>
+                <div id="reportRiskStats" class="report-list"></div>
+              </div>
+              <div class="report-card">
+                <h4>Drawdown Curve</h4>
+                <div id="reportDrawdownCurve" class="report-chart-box"></div>
+              </div>
+            </div>
+          </div>
+        </article>
 
         <article id="logPanel" class="card section-panel">
           <h3>System Log Panel</h3>
           <div id="systemLog" class="log-box"></div>
         </article>
+        <article id="triggerFlowPanel" class="card section-panel">
+          <h3>Trigger Flow Panel</h3>
+          <div class="trigger-flow-head">
+            <div id="triggerFlowCount" class="trigger-flow-count">0 events</div>
+            <button id="clearTriggerFlowBtn" class="btn-secondary" type="button">Clear Trigger Flow</button>
+          </div>
+          <div id="triggerFlowLog" class="log-box"></div>
+        </article>
       </div>
     </section>
   </main>
+
+  <div id="tradeDetailModal" class="trade-modal" aria-hidden="true">
+    <div class="trade-modal-card">
+      <div class="trade-modal-head">
+        <h3 id="tradeDetailTitle" class="trade-modal-title">Trade Details</h3>
+        <button id="tradeDetailCloseBtn" class="trade-modal-close" type="button">Close</button>
+      </div>
+      <div class="trade-modal-body">
+        <div id="tradeDetailGrid" class="trade-detail-grid"></div>
+      </div>
+    </div>
+  </div>
 
   <script src="./kutea26_memory.js"></script>
   <script>
@@ -959,9 +1577,19 @@ Mode: IDLE</div>
       seenLogs: new Set(),
       poller: null,
       memoryPersistTimer: null,
+      accountSnapshot: {},
       analyticsSummary: null,
       watchdogStatus: null,
-      analyticsLastFetchMs: 0
+      analyticsLastFetchMs: 0,
+      reportSummary: null,
+      reportLastFetchMs: 0,
+      reportTab: "summary",
+      manualTradeEnabled: false,
+      triggerFlowMode: "BOTH",
+      liveTradeEditDraft: null,
+      tradeDetailModalOpen: false,
+      liveTradeDragX: null,
+      liveTradeDragY: null
     };
 
     const memory = (typeof window !== "undefined" && window.KutEA26Memory) ? window.KutEA26Memory : null;
@@ -998,6 +1626,8 @@ Mode: IDLE</div>
       startBtn: document.getElementById("startBtn"),
       stopBtn: document.getElementById("stopBtn"),
       restartBtn: document.getElementById("restartBtn"),
+      balanceChip: document.getElementById("balanceChip"),
+      equityChip: document.getElementById("equityChip"),
       sessionPnlChip: document.getElementById("sessionPnlChip"),
       botModeChip: document.getElementById("botModeChip"),
       sessionPnlValue: document.getElementById("sessionPnlValue"),
@@ -1014,6 +1644,38 @@ Mode: IDLE</div>
       analyticsSymbols: document.getElementById("analyticsSymbols"),
       watchdogAlertBox: document.getElementById("watchdogAlertBox"),
       runStateChip: document.getElementById("runStateChip"),
+      reportDays: document.getElementById("reportDays"),
+      reportGenerated: document.getElementById("reportGenerated"),
+      refreshReportBtn: document.getElementById("refreshReportBtn"),
+      exportReportJsonBtn: document.getElementById("exportReportJsonBtn"),
+      exportReportCsvBtn: document.getElementById("exportReportCsvBtn"),
+      reportTotalPnl: document.getElementById("reportTotalPnl"),
+      reportWinRate: document.getElementById("reportWinRate"),
+      reportTrades: document.getElementById("reportTrades"),
+      reportDailyPnl: document.getElementById("reportDailyPnl"),
+      reportWeeklyPnl: document.getElementById("reportWeeklyPnl"),
+      reportStrengths: document.getElementById("reportStrengths"),
+      reportWeaknesses: document.getElementById("reportWeaknesses"),
+      reportByDay: document.getElementById("reportByDay"),
+      reportByWeek: document.getElementById("reportByWeek"),
+      reportEaTrades: document.getElementById("reportEaTrades"),
+      reportTabButtons: Array.from(document.querySelectorAll(".report-tab-btn[data-report-tab]")),
+      reportTabSummary: document.getElementById("reportTabSummary"),
+      reportTabPnl: document.getElementById("reportTabPnl"),
+      reportTabSides: document.getElementById("reportTabSides"),
+      reportTabSymbols: document.getElementById("reportTabSymbols"),
+      reportTabRisks: document.getElementById("reportTabRisks"),
+      reportCurveSummary: document.getElementById("reportCurveSummary"),
+      reportPnlBars: document.getElementById("reportPnlBars"),
+      reportRecentDeals: document.getElementById("reportRecentDeals"),
+      reportLongShortSplit: document.getElementById("reportLongShortSplit"),
+      reportSideQuality: document.getElementById("reportSideQuality"),
+      reportSymbolBars: document.getElementById("reportSymbolBars"),
+      reportRiskStats: document.getElementById("reportRiskStats"),
+      reportDrawdownCurve: document.getElementById("reportDrawdownCurve"),
+      triggerFlowCount: document.getElementById("triggerFlowCount"),
+      triggerFlowLog: document.getElementById("triggerFlowLog"),
+      clearTriggerFlowBtn: document.getElementById("clearTriggerFlowBtn"),
       navLinks: Array.from(document.querySelectorAll(".nav-link[data-target]")),
       panels: Array.from(document.querySelectorAll(".section-panel")),
       chartSymbol: document.getElementById("chartSymbol"),
@@ -1034,12 +1696,33 @@ Mode: IDLE</div>
       autoScaleBtn: document.getElementById("autoScaleBtn"),
       freeMoveBtn: document.getElementById("freeMoveBtn"),
       closeTradeBtn: document.getElementById("closeTradeBtn"),
+      dispatchAutomationBtn: document.getElementById("dispatchAutomationBtn"),
+      triggerFlowMode: document.getElementById("triggerFlowMode"),
+      manualTradeMode: document.getElementById("manualTradeMode"),
+      manualGuardPill: document.getElementById("manualGuardPill"),
+      manualOrderType: document.getElementById("manualOrderType"),
+      manualVolume: document.getElementById("manualVolume"),
+      manualPriceWrap: document.getElementById("manualPriceWrap"),
+      manualPrice: document.getElementById("manualPrice"),
+      manualStopLimitWrap: document.getElementById("manualStopLimitWrap"),
+      manualStopLimitPrice: document.getElementById("manualStopLimitPrice"),
+      manualSl: document.getElementById("manualSl"),
+      manualSlMode: document.getElementById("manualSlMode"),
+      manualTp: document.getElementById("manualTp"),
+      manualTpMode: document.getElementById("manualTpMode"),
+      manualComment: document.getElementById("manualComment"),
+      manualBuyBtn: document.getElementById("manualBuyBtn"),
+      manualSellBtn: document.getElementById("manualSellBtn"),
       marketChart: document.getElementById("marketChart"),
       chartMeta: document.getElementById("chartMeta"),
       liveBody: document.getElementById("liveBody"),
       historyBody: document.getElementById("historyBody"),
       systemLog: document.getElementById("systemLog"),
-      logoutBtn: document.getElementById("logoutBtn")
+      logoutBtn: document.getElementById("logoutBtn"),
+      tradeDetailModal: document.getElementById("tradeDetailModal"),
+      tradeDetailTitle: document.getElementById("tradeDetailTitle"),
+      tradeDetailGrid: document.getElementById("tradeDetailGrid"),
+      tradeDetailCloseBtn: document.getElementById("tradeDetailCloseBtn")
     };
 
     function nowTime() { return new Date().toLocaleTimeString(); }
@@ -1068,7 +1751,10 @@ Mode: IDLE</div>
         chartYZoom: state.chartYZoom,
         chartYShift: state.chartYShift,
         chartFreeMove: state.chartFreeMove,
-        allowedSymbols: state.allowedSymbols
+        allowedSymbols: state.allowedSymbols,
+        reportTab: state.reportTab,
+        triggerFlowMode: state.triggerFlowMode,
+        manualTradeEnabled: state.manualTradeEnabled
       });
     }
 
@@ -1096,10 +1782,13 @@ Mode: IDLE</div>
       }
       state.preferredSymbol = normalizeSymbol(prefs.selectedSymbol || "");
       state.chartVisibleCount = clampNumber(Math.round(Number(prefs.chartVisibleCount || state.chartVisibleCount || 150)), 40, MAX_LOCAL_BARS);
-      state.chartPanBars = Math.max(0, Math.round(Number(prefs.chartPanBars || 0)));
+      state.chartPanBars = Math.round(Number(prefs.chartPanBars || 0));
       state.chartYZoom = clampNumber(Number(prefs.chartYZoom || 1), 0.5, 6);
       state.chartYShift = Number(prefs.chartYShift || 0);
       state.chartFreeMove = !!prefs.chartFreeMove;
+      state.reportTab = String(prefs.reportTab || state.reportTab || "summary").toLowerCase();
+      state.triggerFlowMode = normalizeTriggerFlowMode(prefs.triggerFlowMode || state.triggerFlowMode || "BOTH");
+      state.manualTradeEnabled = !!prefs.manualTradeEnabled;
     }
 
     function restoreCachedCandlesFor(symbol, tf) {
@@ -1130,6 +1819,64 @@ Mode: IDLE</div>
       }
     }
 
+    function isTriggerFlowMessage(message) {
+      const raw = String(message || "");
+      if (!raw) return false;
+      if (raw.includes("[TriggerFlow]")) return true;
+      const text = raw.toLowerCase();
+      return (
+        text.includes("entry accepted") ||
+        text.includes("rescue entry accepted") ||
+        text.includes("blocked entry") ||
+        text.includes("trigger fired") ||
+        text.includes("tag result:") ||
+        text.includes("paused tag:") ||
+        text.includes("resumed tag:")
+      );
+    }
+
+    function classifyTriggerFlow(message) {
+      const text = String(message || "").toLowerCase();
+      if (text.includes("pending")) return { type: "pending", label: "Pending" };
+      if (text.includes("blocked")) return { type: "blocked", label: "Blocked" };
+      if (text.includes("order sent") || text.includes("entry accepted") || text.includes("trigger fired")) {
+        return { type: "success", label: "Success" };
+      }
+      if (text.includes("error") || text.includes("failed") || text.includes("retcode")) {
+        return { type: "error", label: "Error" };
+      }
+      return { type: "info", label: "Info" };
+    }
+
+    function updateTriggerFlowCount() {
+      if (!el.triggerFlowCount || !el.triggerFlowLog) return;
+      const count = Number(el.triggerFlowLog.childElementCount || 0);
+      el.triggerFlowCount.textContent = `${count} event${count === 1 ? "" : "s"}`;
+    }
+
+    function appendTriggerFlow(message) {
+      if (!el.triggerFlowLog || !isTriggerFlowMessage(message)) return;
+      const level = classifyTriggerFlow(message);
+      const stripped = String(message || "").replace(/^.*?\[TriggerFlow\]\s*/i, "").trim();
+      const content = stripped || String(message || "");
+      const p = document.createElement("p");
+      p.className = `log-line trigger-flow-line trigger-flow-${level.type}`;
+      p.innerHTML = `<span class="t">[${nowTime()}]</span> <span class="trigger-flow-badge ${level.type}">${level.label}</span> ${escHtml(content)}`;
+      el.triggerFlowLog.appendChild(p);
+      const maxKeep = 600;
+      while (el.triggerFlowLog.childElementCount > maxKeep) {
+        el.triggerFlowLog.removeChild(el.triggerFlowLog.firstElementChild);
+      }
+      el.triggerFlowLog.scrollTop = el.triggerFlowLog.scrollHeight;
+      updateTriggerFlowCount();
+    }
+
+    function resetTriggerFlowPanel() {
+      if (!el.triggerFlowLog) return;
+      el.triggerFlowLog.innerHTML = "";
+      updateTriggerFlowCount();
+    }
+
     function log(message, remote = false) {
       const key = remote ? `r:${message}` : `l:${message}`;
       if (state.seenLogs.has(key)) return;
@@ -1139,6 +1886,7 @@ Mode: IDLE</div>
       p.innerHTML = `<span class="t">[${nowTime()}]</span> ${message}`;
       el.systemLog.appendChild(p);
       el.systemLog.scrollTop = el.systemLog.scrollHeight;
+      appendTriggerFlow(message);
       bus.dispatchEvent(new CustomEvent("log", { detail: message }));
     }
 
@@ -1195,6 +1943,245 @@ Mode: IDLE</div>
           throw new Error(data.error || `Request failed (${res.status})`);
         }
         return data;
+      }
+    }
+
+    function normalizeTriggerFlowMode(value) {
+      const raw = String(value || "").trim().toUpperCase();
+      if (raw === "BUY" || raw === "BUY_ONLY" || raw === "LONG") return "BUY_ONLY";
+      if (raw === "SELL" || raw === "SELL_ONLY" || raw === "SHORT") return "SELL_ONLY";
+      if (raw === "AUTO") return "AUTO";
+      return "BOTH";
+    }
+
+    function normalizeManualOrderType(value) {
+      return String(value || "MARKET_EXECUTION").trim().toUpperCase();
+    }
+
+    function orderTypeRequiredFields(orderType) {
+      const t = normalizeManualOrderType(orderType);
+      if (t === "BUY_STOP_LIMIT" || t === "SELL_STOP_LIMIT") return { price: true, stopLimit: true };
+      if (t === "MARKET_EXECUTION") return { price: false, stopLimit: false };
+      return { price: true, stopLimit: false };
+    }
+
+    function orderTypeFixedSide(orderType) {
+      const t = normalizeManualOrderType(orderType);
+      if (t.startsWith("BUY_")) return "BUY";
+      if (t.startsWith("SELL_")) return "SELL";
+      return "ANY";
+    }
+
+    function parseOptionalNumInput(ctrl) {
+      if (!ctrl) return null;
+      const raw = String(ctrl.value || "").trim();
+      if (!raw) return null;
+      const cleaned = raw.replace(/,/g, "").replace(/^\$/, "").trim();
+      const n = Number(cleaned);
+      if (!Number.isFinite(n)) return null;
+      return n;
+    }
+
+    function parseFlexibleNumericInput(ctrl, allowCurrency = false) {
+      if (!ctrl) return { ok: true, empty: true, value: null };
+      const raw = String(ctrl.value || "").trim();
+      if (!raw) return { ok: true, empty: true, value: null };
+      let cleaned = raw.replace(/,/g, "").trim();
+      if (allowCurrency && cleaned.startsWith("$")) cleaned = cleaned.slice(1).trim();
+      const n = Number(cleaned);
+      if (!Number.isFinite(n)) return { ok: false, empty: false, value: null };
+      return { ok: true, empty: false, value: n };
+    }
+
+    function setManualTradeEnabled(enabled, origin = "ui") {
+      state.manualTradeEnabled = !!enabled;
+      if (el.manualTradeMode) el.manualTradeMode.value = state.manualTradeEnabled ? "on" : "off";
+      if (el.manualGuardPill) {
+        el.manualGuardPill.textContent = `Manual Trade: ${state.manualTradeEnabled ? "ON" : "OFF"}`;
+        el.manualGuardPill.classList.toggle("ok", state.manualTradeEnabled);
+      }
+      updateManualOrderUi();
+      if (origin === "backend") return;
+      schedulePersistChartMemory();
+    }
+
+    function setTriggerFlowMode(mode, origin = "ui") {
+      state.triggerFlowMode = normalizeTriggerFlowMode(mode);
+      if (el.triggerFlowMode) el.triggerFlowMode.value = state.triggerFlowMode;
+      if (origin === "backend") return;
+      schedulePersistChartMemory();
+    }
+
+    function updateManualOrderUi() {
+      const orderType = normalizeManualOrderType(el.manualOrderType?.value || "MARKET_EXECUTION");
+      const req = orderTypeRequiredFields(orderType);
+      const fixedSide = orderTypeFixedSide(orderType);
+
+      if (el.manualPriceWrap) el.manualPriceWrap.classList.toggle("field-hidden", !req.price);
+      if (el.manualStopLimitWrap) el.manualStopLimitWrap.classList.toggle("field-hidden", !req.stopLimit);
+
+      const byTrigger = state.triggerFlowMode === "BOTH";
+      const baseEnabled = state.manualTradeEnabled && state.backendApiOnline && state.connected && byTrigger;
+      let allowBuy = baseEnabled;
+      let allowSell = baseEnabled;
+      if (fixedSide === "BUY") allowSell = false;
+      if (fixedSide === "SELL") allowBuy = false;
+
+      if (el.manualBuyBtn) el.manualBuyBtn.disabled = !allowBuy;
+      if (el.manualSellBtn) el.manualSellBtn.disabled = !allowSell;
+      if (el.manualGuardPill) {
+        const connectedOk = state.backendApiOnline && state.connected;
+        const text = !state.manualTradeEnabled
+          ? "Manual Trade: OFF"
+          : !connectedOk
+            ? "Manual Trade: ON (Connect broker/backend)"
+            : !byTrigger
+              ? "Manual Trade: ON (Trigger must be Both Sides)"
+              : "Manual Trade: ON";
+        el.manualGuardPill.textContent = text;
+        el.manualGuardPill.classList.toggle("ok", !!baseEnabled);
+      }
+    }
+
+    async function syncManualConfig(manualLog = false) {
+      if (!state.backendApiOnline) {
+        updateManualOrderUi();
+        return false;
+      }
+      try {
+        const data = await api("/api/manual/config", {
+          method: "POST",
+          body: {
+            manual_trade_enabled: state.manualTradeEnabled,
+            trigger_flow_mode: state.triggerFlowMode
+          }
+        });
+        setManualTradeEnabled(!!data.manual_trade_enabled, "backend");
+        setTriggerFlowMode(data.trigger_flow_mode, "backend");
+        if (manualLog) log(`Manual config saved (manual=${state.manualTradeEnabled ? "ON" : "OFF"}, trigger=${state.triggerFlowMode})`);
+        return true;
+      } catch (err) {
+        if (manualLog) log(`Manual config sync error: ${err.message}`);
+        updateManualOrderUi();
+        return false;
+      }
+    }
+
+    async function dispatchMt5AutomationCommand(manualLog = true) {
+      if (!state.backendApiOnline) {
+        if (manualLog) log("Error: Connect backend first");
+        return false;
+      }
+      const payload = {
+        action: "attach",
+        symbol: state.selectedSymbol || "",
+        tf: normalizeTf(state.chartTf),
+        allowed_symbols: state.allowedSymbols || [],
+        primary_symbol: state.selectedSymbol || "",
+        trigger_flow_mode: state.triggerFlowMode,
+        manual_trade_enabled: state.manualTradeEnabled,
+        settings: collectSettings()
+      };
+      try {
+        const res = await api("/api/automation/dispatch", { method: "POST", body: payload });
+        if (manualLog) log(`MT5 automation command dispatched (${res.command_file || "ok"})`);
+        return true;
+      } catch (err) {
+        if (manualLog) log(`Automation dispatch error: ${err.message}`);
+        return false;
+      }
+    }
+
+    async function placeManualOrder(side) {
+      const wantedSide = String(side || "").toUpperCase();
+      if (!state.backendApiOnline) {
+        log("Error: Connect backend first");
+        return;
+      }
+      if (!state.connected) {
+        log("Error: Broker not connected");
+        return;
+      }
+      if (!state.manualTradeEnabled) {
+        log("Error: Manual trade mode is OFF");
+        return;
+      }
+      const symbol = normalizeSymbol(state.selectedSymbol || el.chartSymbol.value);
+      if (!symbol) {
+        log("Error: Select a market symbol first");
+        return;
+      }
+      const orderType = normalizeManualOrderType(el.manualOrderType.value || "MARKET_EXECUTION");
+      const fixedSide = orderTypeFixedSide(orderType);
+      if (fixedSide !== "ANY" && fixedSide !== wantedSide) {
+        log(`Error: ${orderType.replace(/_/g, " ")} must use ${fixedSide} button`);
+        return;
+      }
+      const volume = Number(el.manualVolume.value || 0);
+      if (!Number.isFinite(volume) || volume <= 0) {
+        log("Error: Lot size must be greater than 0");
+        return;
+      }
+      const req = orderTypeRequiredFields(orderType);
+      const priceParsed = parseFlexibleNumericInput(el.manualPrice, false);
+      const stopLimitParsed = parseFlexibleNumericInput(el.manualStopLimitPrice, false);
+      if (!priceParsed.ok) {
+        log("Error: Entry price must be numeric");
+        return;
+      }
+      if (!stopLimitParsed.ok) {
+        log("Error: Stop limit price must be numeric");
+        return;
+      }
+      const price = priceParsed.value;
+      const stopLimit = stopLimitParsed.value;
+      if (req.price && (!Number.isFinite(price) || Number(price) <= 0)) {
+        log("Error: Entry price is required for this order type");
+        return;
+      }
+      if (req.stopLimit && (!Number.isFinite(stopLimit) || Number(stopLimit) <= 0)) {
+        log("Error: Stop limit price is required for this order type");
+        return;
+      }
+      const slParsed = parseFlexibleNumericInput(el.manualSl, true);
+      const tpParsed = parseFlexibleNumericInput(el.manualTp, true);
+      if (!slParsed.ok) {
+        log("Error: Stop Loss must be numeric (example: $29, 19, 467283.90)");
+        return;
+      }
+      if (!tpParsed.ok) {
+        log("Error: Take Profit must be numeric (example: $29, 19, 467283.90)");
+        return;
+      }
+      const sl = slParsed.value;
+      const tp = tpParsed.value;
+      const slMode = String(el.manualSlMode?.value || "PRICE").toUpperCase();
+      const tpMode = String(el.manualTpMode?.value || "PRICE").toUpperCase();
+      const comment = String(el.manualComment.value || "").trim();
+      try {
+        const res = await api("/api/trades/manual", {
+          method: "POST",
+          body: {
+            symbol,
+            side: wantedSide,
+            order_type: orderType,
+            volume,
+            price,
+            stop_limit: stopLimit,
+            sl,
+            tp,
+            sl_mode: slMode,
+            tp_mode: tpMode,
+            comment
+          }
+        });
+        const out = res.result || {};
+        const ticket = Number(out.order || out.deal || 0);
+        log(`Manual ${wantedSide} ${orderType.replace(/_/g, " ")} sent on ${symbol}${ticket ? ` (#${ticket})` : ""}`);
+        await pollBackend();
+        await fetchMarketCandles(true);
+      } catch (err) {
+        log(`Manual order error: ${err.message}`);
       }
     }
 
@@ -1262,6 +2249,7 @@ Mode: IDLE</div>
     function logout() {
       sessionStorage.removeItem("kutea26_session");
       disconnectBackendApi(false);
+      closeTradeDetailModal();
       setAuthenticated(false);
     }
 
@@ -1271,6 +2259,7 @@ Mode: IDLE</div>
       el.backendApiBtn.textContent = online ? "Disconnect Backend" : "Connect Backend";
       el.backendApiBtn.classList.toggle("btn-backend-connect", !online);
       el.backendApiBtn.classList.toggle("btn-backend-disconnect", online);
+      updateManualOrderUi();
     }
 
     function disconnectBackendApi(logMessage = true) {
@@ -1278,11 +2267,20 @@ Mode: IDLE</div>
         api("/api/ea/stop", { method: "POST" }).catch(() => {});
       }
       setEngineState(false);
+      setManualTradeEnabled(false, "backend");
+      setTriggerFlowMode("BOTH", "backend");
       stopPolling();
       state.apiSessionToken = "";
       setBackendApiState(false, "Disconnected");
+      closeTradeDetailModal();
       state.marketStructure = {};
+      state.accountSnapshot = {};
+      state.reportSummary = null;
+      state.reportLastFetchMs = 0;
+      renderAccount({});
       renderInsight(buildFallbackInsight());
+      renderReport(buildFallbackReport());
+      resetTriggerFlowPanel();
       if (logMessage) log("Backend API disconnected");
     }
 
@@ -1290,8 +2288,14 @@ Mode: IDLE</div>
       try {
         await fetchApiSessionToken(true);
         await api("/api/health");
+        const cfg = await api("/api/manual/config").catch(() => null);
+        if (cfg && typeof cfg === "object") {
+          setManualTradeEnabled(!!cfg.manual_trade_enabled, "backend");
+          setTriggerFlowMode(cfg.trigger_flow_mode || state.triggerFlowMode, "backend");
+        }
         setBackendApiState(true, "Connected");
         startPolling();
+        refreshReport(false);
         if (manual) log("Backend API connected");
         return true;
       } catch (err) {
@@ -1345,6 +2349,7 @@ Mode: IDLE</div>
       el.connectBtn.textContent = connected ? "Disconnect Broker" : "Connect Broker";
       el.connectBtn.classList.toggle("btn-disconnect", connected);
       el.connectBtn.classList.toggle("btn-primary", !connected);
+      updateManualOrderUi();
     }
 
     function prettyName(raw) {
@@ -1393,14 +2398,36 @@ Mode: IDLE</div>
     function buildSettingsPanel(params) {
       el.settingsPanel.innerHTML = "";
       if (!params?.length) {
-        log("EA parameter parse returned empty list");
-        el.setFile.disabled = true;
-        el.setFileName.textContent = "No .set loaded";
+        const note = document.createElement("p");
+        note.className = "hint";
+        note.textContent = "No typed inputs available from this EA file. Upload a .set file to load settings values.";
+        el.settingsPanel.appendChild(note);
+        el.setFile.disabled = !state.mq5Loaded;
         return;
       }
       params.forEach(p => el.settingsPanel.appendChild(makeField(p)));
       el.setFile.disabled = false;
       log(`EA Loaded Successfully - ${params.length} inputs parsed`);
+    }
+
+    function buildSettingsPanelFromMap(values, silent = false) {
+      const entries = Object.entries(values || {}).filter(([k]) => String(k || "").trim().length > 0);
+      if (!entries.length) {
+        buildSettingsPanel([]);
+        return 0;
+      }
+      const params = entries.map(([k, v]) => ({
+        type: "string",
+        name: String(k),
+        defaultValue: String(v ?? "")
+      }));
+      state.parameters = params;
+      el.settingsPanel.innerHTML = "";
+      params.forEach(p => el.settingsPanel.appendChild(makeField(p)));
+      el.setFile.disabled = false;
+      collectSettings();
+      if (!silent) log(`Settings panel loaded from key/value map (${params.length} fields)`);
+      return params.length;
     }
 
     function collectSettings() {
@@ -1434,6 +2461,9 @@ Mode: IDLE</div>
 
     function applySetValues(values) {
       const controls = Array.from(el.settingsPanel.querySelectorAll("[data-param]"));
+      if (!controls.length) {
+        return buildSettingsPanelFromMap(values, true);
+      }
       const lowerMap = {};
       Object.keys(values || {}).forEach(k => { lowerMap[String(k).toLowerCase()] = values[k]; });
       let applied = 0;
@@ -1466,7 +2496,7 @@ Mode: IDLE</div>
       const file = evt.target.files?.[0];
       if (!file) return;
       if (!state.mq5Loaded) {
-        log("Error: Load .mq5 first, then upload .set");
+        log("Error: Load EA file first, then upload .set");
         el.setFile.value = "";
         return;
       }
@@ -1494,6 +2524,8 @@ Mode: IDLE</div>
       }
       setBrokerStatus(false, "Disconnected");
       setEngineState(false);
+      setManualTradeEnabled(false, "backend");
+      setTriggerFlowMode("BOTH", "backend");
       log("Broker Disconnected");
     }
 
@@ -1535,12 +2567,13 @@ Mode: IDLE</div>
     async function handleFileUpload(evt) {
       const file = evt.target.files?.[0];
       if (!file) return;
-      if (!file.name.toLowerCase().endsWith(".mq5")) {
+      const lowerName = file.name.toLowerCase();
+      if (!(lowerName.endsWith(".mq5") || lowerName.endsWith(".ex5"))) {
         el.fileName.textContent = "Invalid file type";
         el.setFile.disabled = true;
         el.setFile.value = "";
         el.setFileName.textContent = "No .set loaded";
-        log("Error: Only .mq5 upload is allowed");
+        log("Error: Only .ex5 or .mq5 upload is allowed");
         state.mq5Loaded = false;
         return;
       }
@@ -1550,8 +2583,19 @@ Mode: IDLE</div>
         const res = await api("/api/ea/upload", { method: "POST", formData: fd });
         el.fileName.textContent = file.name;
         state.parameters = res.params || [];
-        buildSettingsPanel(state.parameters);
         state.mq5Loaded = true;
+        const serverSettings = (res && typeof res.settings === "object" && res.settings) ? res.settings : {};
+        if (state.parameters.length) {
+          buildSettingsPanel(state.parameters);
+        } else if (Object.keys(serverSettings).length) {
+          buildSettingsPanelFromMap(serverSettings, true);
+          log("EA .ex5 loaded with existing settings map.");
+        } else {
+          buildSettingsPanel([]);
+          if (String(res.file_type || "").toLowerCase() === "ex5") {
+            log("EA .ex5 loaded. Upload a .set file to load settings (or upload .mq5 for typed input controls).");
+          }
+        }
         el.setFileName.textContent = "No .set loaded";
       } catch (err) {
         state.mq5Loaded = false;
@@ -1571,33 +2615,94 @@ Mode: IDLE</div>
         const symbolBtn = symbol && symbol !== "-" ?
           `<button type="button" class="symbol-jump" data-symbol="${symbolSafe}">${symbolSafe}</button>` :
           "-";
-        return `<tr>
+        const sl = Number(t.sl || 0);
+        const tp = Number(t.tp || 0);
+        const slText = (Number.isFinite(sl) && sl > 0) ? sl.toFixed(2) : "-";
+        const tpText = (Number.isFinite(tp) && tp > 0) ? tp.toFixed(2) : "-";
+        const ticket = String(t.id ?? "");
+        return `<tr class="clickable-row" data-live-ticket="${escHtml(ticket)}">
           <td>${t.id ?? "-"}</td>
           <td>${symbolBtn}</td>
+          <td>${t.side || "-"}</td>
           <td>${Number(t.lot || 0).toFixed(2)}</td>
           <td>${Number(t.entry || 0).toFixed(2)}</td>
           <td>${Number(t.current || 0).toFixed(2)}</td>
+          <td>${slText}</td>
+          <td>${tpText}</td>
           <td class="${pnlClass}">${pnl.toFixed(2)}</td>
           <td>${t.status || "Open"}</td>
         </tr>`;
       }).join("");
-      el.liveBody.innerHTML = html || `<tr><td colspan="7" class="hint">No live transactions</td></tr>`;
+      el.liveBody.innerHTML = html || `<tr><td colspan="9" class="hint">No live transactions</td></tr>`;
     }
 
     function renderHistory(rows = []) {
       const html = rows.slice(0, 200).map(t => {
         const pnl = Number(t.pnl || 0);
         const pnlClass = pnl >= 0 ? "pnl-pos" : "pnl-neg";
-        return `<tr>
+        const ticket = String(t.id ?? "");
+        return `<tr class="clickable-row" data-history-ticket="${escHtml(ticket)}">
           <td>${t.id ?? "-"}</td>
+          <td>${t.position_id ?? "-"}</td>
           <td>${t.symbol ?? "-"}</td>
+          <td>${t.side || "-"}</td>
+          <td>${Number(t.lot || 0).toFixed(2)}</td>
           <td>${Number(t.entry || 0).toFixed(2)}</td>
           <td>${Number(t.exit || 0).toFixed(2)}</td>
           <td class="${pnlClass}">${pnl.toFixed(2)}</td>
+          <td>${escHtml(String(t.reason_name || t.reason || "-"))}</td>
           <td>${t.close_time || "-"}</td>
         </tr>`;
       }).join("");
-      el.historyBody.innerHTML = html || `<tr><td colspan="6" class="hint">No completed trades</td></tr>`;
+      el.historyBody.innerHTML = html || `<tr><td colspan="9" class="hint">No completed trades</td></tr>`;
+    }
+
+    function formatDetailValue(v, fallback = "-") {
+      if (v === null || v === undefined || v === "") return fallback;
+      return String(v);
+    }
+
+    function openTradeDetailModal(row, source = "live") {
+      if (!row || !el.tradeDetailModal || !el.tradeDetailGrid || !el.tradeDetailTitle) return;
+      const r = row || {};
+      const pnl = Number(r.pnl || 0);
+      const details = [
+        ["Ticket", formatDetailValue(r.id)],
+        ["Position ID", formatDetailValue(r.position_id)],
+        ["Source", source === "history" ? "History" : "Live"],
+        ["Symbol", formatDetailValue(r.symbol)],
+        ["Side", formatDetailValue(r.side)],
+        ["Lot", Number(r.lot || 0).toFixed(2)],
+        ["Entry", Number(r.entry || 0).toFixed(5)],
+        ["Current", source === "live" ? Number(r.current || 0).toFixed(5) : "-"],
+        ["Exit", source === "history" ? Number(r.exit || 0).toFixed(5) : "-"],
+        ["SL", (Number(r.sl || 0) > 0 ? Number(r.sl || 0).toFixed(5) : "-")],
+        ["TP", (Number(r.tp || 0) > 0 ? Number(r.tp || 0).toFixed(5) : "-")],
+        ["P/L", `${pnl >= 0 ? "+" : ""}${pnl.toFixed(2)}`],
+        ["Status", formatDetailValue(r.status, source === "history" ? "Closed" : "Open")],
+        ["Open Time", formatDetailValue(r.open_time_iso || (r.open_time ? new Date(Number(r.open_time) * 1000).toLocaleString() : "-"))],
+        ["Close Time", formatDetailValue(r.close_time)],
+        ["Reason", formatDetailValue(r.reason_name || r.reason)],
+        ["Magic", formatDetailValue(r.magic)],
+        ["Comment", formatDetailValue(r.comment)],
+      ];
+      el.tradeDetailTitle.textContent = `Trade Details - #${formatDetailValue(r.id)}`;
+      el.tradeDetailGrid.innerHTML = details.map(([k, v]) => `
+        <div class="trade-detail-item">
+          <div class="k">${escHtml(k)}</div>
+          <div class="v">${escHtml(v)}</div>
+        </div>
+      `).join("");
+      el.tradeDetailModal.classList.add("show");
+      el.tradeDetailModal.setAttribute("aria-hidden", "false");
+      state.tradeDetailModalOpen = true;
+    }
+
+    function closeTradeDetailModal() {
+      if (!el.tradeDetailModal) return;
+      el.tradeDetailModal.classList.remove("show");
+      el.tradeDetailModal.setAttribute("aria-hidden", "true");
+      state.tradeDetailModalOpen = false;
     }
 
     function chartKey(symbol, tf) {
@@ -1747,6 +2852,9 @@ Mode: IDLE</div>
         }
         state.marketCandles[key] = mergedCandles.slice(-MAX_LOCAL_BARS);
         refreshLearningMemory(sym, state.chartTf, state.marketCandles[key]);
+        if (data.warning && force) {
+          log(`Chart feed warning: ${String(data.warning)}`);
+        }
         const structure = data.structure || {};
         const incomingPoints = Array.isArray(structure.points) ? structure.points : [];
         const incomingFvg = Array.isArray(structure.fvg) ? structure.fvg : [];
@@ -1836,6 +2944,427 @@ Mode: IDLE</div>
         .replace(/"/g, "&quot;");
     }
 
+    function getReportDays() {
+      const n = Number(el.reportDays?.value || 30);
+      return clampNumber(Math.round(Number.isFinite(n) ? n : 30), 1, 3650);
+    }
+
+    function buildFallbackReport() {
+      return {
+        ok: true,
+        generated_at: null,
+        window_days: getReportDays(),
+        account: {},
+        totals: { trades: 0, wins: 0, losses: 0, win_rate_pct: 0, pnl: 0, avg_pnl: 0, best_trade: 0, worst_trade: 0 },
+        snapshot: { latest_day: { day: "", trades: 0, pnl: 0 }, latest_week: { week: "", trades: 0, pnl: 0 } },
+        strengths: [],
+        weaknesses: [],
+        by_day: [],
+        by_week: [],
+        ea_history_trades: [],
+        recent_deals: [],
+      };
+    }
+
+    function renderAccount(accountRaw = null) {
+      const a = accountRaw && typeof accountRaw === "object" ? accountRaw : {};
+      const bal = Number(a.balance);
+      const eq = Number(a.equity);
+      if (!state.connected || !Number.isFinite(bal) || !Number.isFinite(eq)) {
+        el.balanceChip.textContent = "Balance: --";
+        el.equityChip.textContent = "Equity: --";
+        return;
+      }
+      el.balanceChip.textContent = `Balance: ${bal.toFixed(2)}`;
+      el.equityChip.textContent = `Equity: ${eq.toFixed(2)}`;
+    }
+
+    function renderReportRows(targetEl, headers, rows, emptyText) {
+      if (!targetEl) return;
+      const head = `<div class="row header"><span>${escHtml(headers[0] || "")}</span><span>${escHtml(headers[1] || "")}</span><span>${escHtml(headers[2] || "")}</span></div>`;
+      if (!Array.isArray(rows) || rows.length === 0) {
+        targetEl.innerHTML = `${head}<div class="row"><span>${escHtml(emptyText || "No data")}</span><span>-</span><span>-</span></div>`;
+        return;
+      }
+      targetEl.innerHTML = head + rows.map(r => `<div class="row"><span>${escHtml(r[0])}</span><span>${escHtml(r[1])}</span><span>${escHtml(r[2])}</span></div>`).join("");
+    }
+
+    function setReportTab(tab, persist = true) {
+      const key = String(tab || "summary").toLowerCase();
+      const valid = ["summary", "pnl", "sides", "symbols", "risks"];
+      state.reportTab = valid.includes(key) ? key : "summary";
+      if (persist) schedulePersistChartMemory();
+      el.reportTabButtons.forEach(btn => btn.classList.toggle("active", String(btn.dataset.reportTab || "") === state.reportTab));
+      if (el.reportTabSummary) el.reportTabSummary.classList.toggle("active", state.reportTab === "summary");
+      if (el.reportTabPnl) el.reportTabPnl.classList.toggle("active", state.reportTab === "pnl");
+      if (el.reportTabSides) el.reportTabSides.classList.toggle("active", state.reportTab === "sides");
+      if (el.reportTabSymbols) el.reportTabSymbols.classList.toggle("active", state.reportTab === "symbols");
+      if (el.reportTabRisks) el.reportTabRisks.classList.toggle("active", state.reportTab === "risks");
+    }
+
+    function svgLine(values, stroke = "#5ca6ff", fill = "rgba(70,136,230,0.16)") {
+      const nums = (values || []).map(v => Number(v)).filter(v => Number.isFinite(v));
+      if (nums.length < 2) return `<div class="hint">Not enough data</div>`;
+      const w = 900;
+      const h = 220;
+      const padX = 18;
+      const padY = 14;
+      const minV = Math.min(...nums);
+      const maxV = Math.max(...nums);
+      const span = Math.max(0.000001, maxV - minV);
+      const xStep = (w - padX * 2) / Math.max(1, nums.length - 1);
+      const points = nums.map((v, i) => {
+        const x = padX + i * xStep;
+        const y = h - padY - ((v - minV) / span) * (h - padY * 2);
+        return `${x.toFixed(2)},${y.toFixed(2)}`;
+      });
+      const area = [`${padX},${h - padY}`, ...points, `${(w - padX).toFixed(2)},${h - padY}`].join(" ");
+      return `
+        <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+          <rect x="0" y="0" width="${w}" height="${h}" fill="transparent"></rect>
+          <polyline points="${area}" fill="${fill}" stroke="none"></polyline>
+          <polyline points="${points.join(" ")}" fill="none" stroke="${stroke}" stroke-width="2.2"></polyline>
+        </svg>
+      `;
+    }
+
+    function svgBars(values) {
+      const nums = (values || []).map(v => Number(v)).filter(v => Number.isFinite(v));
+      if (!nums.length) return `<div class="hint">Not enough data</div>`;
+      const w = 900;
+      const h = 220;
+      const padX = 16;
+      const padY = 14;
+      const minV = Math.min(0, ...nums);
+      const maxV = Math.max(0, ...nums);
+      const span = Math.max(0.000001, maxV - minV);
+      const baseline = h - padY - ((0 - minV) / span) * (h - padY * 2);
+      const colW = Math.max(2, (w - padX * 2) / Math.max(1, nums.length) * 0.78);
+      const step = (w - padX * 2) / Math.max(1, nums.length);
+      const bars = nums.map((v, i) => {
+        const x = padX + i * step + (step - colW) * 0.5;
+        const y = h - padY - ((v - minV) / span) * (h - padY * 2);
+        const top = Math.min(y, baseline);
+        const barH = Math.max(1, Math.abs(y - baseline));
+        const color = v >= 0 ? "#22c986" : "#e76478";
+        return `<rect x="${x.toFixed(2)}" y="${top.toFixed(2)}" width="${colW.toFixed(2)}" height="${barH.toFixed(2)}" fill="${color}"></rect>`;
+      }).join("");
+      return `
+        <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+          <line x1="${padX}" y1="${baseline.toFixed(2)}" x2="${(w - padX).toFixed(2)}" y2="${baseline.toFixed(2)}" stroke="rgba(150,173,210,0.55)" stroke-width="1"></line>
+          ${bars}
+        </svg>
+      `;
+    }
+
+    function renderReportAdvanced(reportRaw = null) {
+      const report = reportRaw && typeof reportRaw === "object" ? reportRaw : buildFallbackReport();
+      const byDayDesc = Array.isArray(report.by_day) ? report.by_day.slice() : [];
+      const byDayAsc = byDayDesc.slice().reverse();
+      const dayPnls = byDayAsc.map(r => Number(r.pnl || 0));
+      const totals = report.totals || {};
+      const startBalance = Number((report.account || {}).balance || 0) - Number(totals.pnl || 0);
+      const curve = [];
+      let bal = Number.isFinite(startBalance) ? startBalance : 0;
+      dayPnls.forEach(p => {
+        bal += Number(p || 0);
+        curve.push(bal);
+      });
+      const drawdown = [];
+      let peak = -Infinity;
+      curve.forEach(v => {
+        peak = Math.max(peak, v);
+        const ddPct = peak > 0 ? ((peak - v) / peak) * 100 : 0;
+        drawdown.push(ddPct);
+      });
+
+      if (el.reportCurveSummary) el.reportCurveSummary.innerHTML = svgLine(curve.length ? curve : [0, 0], "#66a9ff", "rgba(58,121,214,0.18)");
+      if (el.reportPnlBars) el.reportPnlBars.innerHTML = svgBars(dayPnls.slice(-120));
+      if (el.reportDrawdownCurve) el.reportDrawdownCurve.innerHTML = svgLine(drawdown.length ? drawdown : [0, 0], "#ff8b5e", "rgba(225,111,68,0.16)");
+
+      const deals = Array.isArray(report.recent_deals) ? report.recent_deals.slice() : [];
+      let longCount = 0;
+      let shortCount = 0;
+      let longPnl = 0;
+      let shortPnl = 0;
+      deals.forEach(d => {
+        const side = String(d.side || "").toUpperCase();
+        const pnl = Number(d.pnl || 0);
+        if (side === "BUY") {
+          longCount += 1;
+          longPnl += pnl;
+        } else if (side === "SELL") {
+          shortCount += 1;
+          shortPnl += pnl;
+        }
+      });
+      const totalSides = Math.max(1, longCount + shortCount);
+      const longPct = (longCount / totalSides) * 100;
+      const shortPct = 100 - longPct;
+      if (el.reportLongShortSplit) {
+        el.reportLongShortSplit.innerHTML = `
+          <div style="display:grid;grid-template-columns:170px 1fr;gap:12px;align-items:center;">
+            <div style="width:150px;height:150px;border-radius:50%;background:conic-gradient(#63a9ff 0 ${longPct.toFixed(2)}%, #ff8a63 ${longPct.toFixed(2)}% 100%);margin:0 auto;"></div>
+            <div style="font-size:0.9rem;color:#cde0ff;line-height:1.7;">
+              <div>Long Trades: <b>${longCount}</b> (${longPct.toFixed(2)}%)</div>
+              <div>Short Trades: <b>${shortCount}</b> (${shortPct.toFixed(2)}%)</div>
+              <div>Long P/L: <b style="color:${longPnl >= 0 ? "var(--ok)" : "var(--bad)"}">${formatSignedMoney(longPnl, 2)}</b></div>
+              <div>Short P/L: <b style="color:${shortPnl >= 0 ? "var(--ok)" : "var(--bad)"}">${formatSignedMoney(shortPnl, 2)}</b></div>
+            </div>
+          </div>
+        `;
+      }
+
+      renderReportRows(
+        el.reportSideQuality,
+        ["Side", "Trades", "P/L"],
+        [
+          ["LONG", String(longCount), formatSignedMoney(longPnl, 2)],
+          ["SHORT", String(shortCount), formatSignedMoney(shortPnl, 2)],
+        ],
+        "No side data"
+      );
+
+      const bySymbol = Array.isArray(report.by_symbol) ? report.by_symbol.slice(0, 14) : [];
+      if (el.reportSymbolBars) {
+        if (!bySymbol.length) {
+          el.reportSymbolBars.innerHTML = `<div class="hint">No symbol data yet</div>`;
+        } else {
+          const maxAbs = Math.max(1, ...bySymbol.map(r => Math.abs(Number(r.pnl || 0))));
+          el.reportSymbolBars.innerHTML = bySymbol.map(r => {
+            const sym = escHtml(String(r.symbol || "-"));
+            const pnl = Number(r.pnl || 0);
+            const width = Math.max(2, Math.round((Math.abs(pnl) / maxAbs) * 88));
+            const color = pnl >= 0 ? "#1fbc82" : "#e76478";
+            return `<div style="display:grid;grid-template-columns:180px 1fr 90px;gap:8px;align-items:center;margin-bottom:8px;">
+              <span style="color:#d8e8ff;font-size:0.84rem;">${sym}</span>
+              <div style="height:10px;border-radius:999px;background:#11213d;overflow:hidden;">
+                <div style="height:100%;width:${width}%;background:${color};"></div>
+              </div>
+              <span style="text-align:right;color:${pnl >= 0 ? "var(--ok)" : "var(--bad)"};font-size:0.84rem;">${formatSignedMoney(pnl, 2)}</span>
+            </div>`;
+          }).join("");
+        }
+      }
+
+      const absDeals = deals.slice().sort((a, b) => Number(a.close_ts || 0) - Number(b.close_ts || 0));
+      let consecWins = 0;
+      let consecLoss = 0;
+      let maxWins = 0;
+      let maxLoss = 0;
+      let grossWin = 0;
+      let grossLoss = 0;
+      absDeals.forEach(d => {
+        const pnl = Number(d.pnl || 0);
+        if (pnl >= 0) {
+          consecWins += 1;
+          consecLoss = 0;
+          grossWin += pnl;
+        } else {
+          consecLoss += 1;
+          consecWins = 0;
+          grossLoss += Math.abs(pnl);
+        }
+        maxWins = Math.max(maxWins, consecWins);
+        maxLoss = Math.max(maxLoss, consecLoss);
+      });
+      const pf = grossLoss > 0 ? (grossWin / grossLoss) : (grossWin > 0 ? 999 : 0);
+      renderReportRows(
+        el.reportRiskStats,
+        ["Metric", "Value", "Detail"],
+        [
+          ["Max Drawdown", `${(drawdown.length ? Math.max(...drawdown) : 0).toFixed(2)}%`, "From report window"],
+          ["Profit Factor", pf.toFixed(2), "Gross Win / Gross Loss"],
+          ["Max Consec Wins", String(maxWins), "Streak quality"],
+          ["Max Consec Losses", String(maxLoss), "Risk pressure"],
+          ["Best Trade", formatSignedMoney(Number(totals.best_trade || 0), 2), "Single deal"],
+          ["Worst Trade", formatSignedMoney(Number(totals.worst_trade || 0), 2), "Single deal"],
+        ],
+        "No risk data"
+      );
+
+      renderReportRows(
+        el.reportRecentDeals,
+        ["Symbol", "Close", "P/L"],
+        deals.slice(0, 120).map(r => [
+          `${String(r.symbol || "-")} (${String(r.deal_id || "-")})`,
+          String(r.close_time || "-"),
+          formatSignedMoney(Number(r.pnl || 0), 2),
+        ]),
+        "No recent deals"
+      );
+    }
+
+    function renderReport(reportRaw = null) {
+      const report = reportRaw && typeof reportRaw === "object" ? reportRaw : buildFallbackReport();
+      const totals = report?.totals && typeof report.totals === "object" ? report.totals : {};
+      const latestDay = report?.snapshot?.latest_day || {};
+      const latestWeek = report?.snapshot?.latest_week || {};
+
+      const totalPnl = Number(totals.pnl || 0);
+      el.reportTotalPnl.textContent = formatSignedMoney(totalPnl, 2);
+      el.reportTotalPnl.classList.toggle("insight-pos", totalPnl >= 0);
+      el.reportTotalPnl.classList.toggle("insight-neg", totalPnl < 0);
+      el.reportWinRate.textContent = `${Number(totals.win_rate_pct || 0).toFixed(2)}%`;
+      el.reportTrades.textContent = `${Number(totals.trades || 0)}`;
+
+      const dayPnl = Number(latestDay?.pnl || 0);
+      const weekPnl = Number(latestWeek?.pnl || 0);
+      el.reportDailyPnl.textContent = `${formatSignedMoney(dayPnl, 2)}${latestDay?.day ? ` (${latestDay.day})` : ""}`;
+      el.reportWeeklyPnl.textContent = `${formatSignedMoney(weekPnl, 2)}${latestWeek?.week ? ` (${latestWeek.week})` : ""}`;
+      el.reportDailyPnl.classList.toggle("insight-pos", dayPnl >= 0);
+      el.reportDailyPnl.classList.toggle("insight-neg", dayPnl < 0);
+      el.reportWeeklyPnl.classList.toggle("insight-pos", weekPnl >= 0);
+      el.reportWeeklyPnl.classList.toggle("insight-neg", weekPnl < 0);
+
+      const generated = String(report.generated_at || "").trim();
+      el.reportGenerated.textContent = generated || "No report yet";
+
+      const strengths = Array.isArray(report.strengths) ? report.strengths : [];
+      const weaknesses = Array.isArray(report.weaknesses) ? report.weaknesses : [];
+      const byDay = Array.isArray(report.by_day) ? report.by_day.slice(0, 20) : [];
+      const byWeek = Array.isArray(report.by_week) ? report.by_week.slice(0, 20) : [];
+      const eaTrades = Array.isArray(report.ea_history_trades) ? report.ea_history_trades.slice(0, 60) : [];
+
+      renderReportRows(
+        el.reportStrengths,
+        ["Symbol", "Trades", "P/L | WR"],
+        strengths.map(r => [
+          String(r.symbol || "-"),
+          String(Number(r.trades || 0)),
+          `${formatSignedMoney(Number(r.pnl || 0), 2)} | ${Number(r.win_rate_pct || 0).toFixed(1)}%`,
+        ]),
+        "No strong areas yet"
+      );
+
+      renderReportRows(
+        el.reportWeaknesses,
+        ["Symbol", "Trades", "P/L | WR"],
+        weaknesses.map(r => [
+          String(r.symbol || "-"),
+          String(Number(r.trades || 0)),
+          `${formatSignedMoney(Number(r.pnl || 0), 2)} | ${Number(r.win_rate_pct || 0).toFixed(1)}%`,
+        ]),
+        "No weak areas yet"
+      );
+
+      renderReportRows(
+        el.reportByDay,
+        ["Day", "Trades", "P/L"],
+        byDay.map(r => [String(r.day || "-"), String(Number(r.trades || 0)), formatSignedMoney(Number(r.pnl || 0), 2)]),
+        "No daily data yet"
+      );
+
+      renderReportRows(
+        el.reportByWeek,
+        ["Week", "Trades", "P/L"],
+        byWeek.map(r => [String(r.week || "-"), String(Number(r.trades || 0)), formatSignedMoney(Number(r.pnl || 0), 2)]),
+        "No weekly data yet"
+      );
+
+      renderReportRows(
+        el.reportEaTrades,
+        ["Symbol", "Close", "P/L"],
+        eaTrades.map(r => [
+          `${String(r.symbol || "-")} (${String(r.id || r.deal_id || "-")})`,
+          String(r.close_time || "-"),
+          formatSignedMoney(Number(r.pnl || 0), 2),
+        ]),
+        "No EA closed trades yet"
+      );
+
+      renderReportAdvanced(report);
+    }
+
+    function downloadTextFile(filename, text, mime = "text/plain;charset=utf-8") {
+      const blob = new Blob([text], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1200);
+    }
+
+    function toCsvCell(value) {
+      const s = String(value ?? "");
+      if (/["\n,]/.test(s)) return `"${s.replace(/"/g, "\"\"")}"`;
+      return s;
+    }
+
+    function buildReportCsv(reportRaw = null) {
+      const report = reportRaw && typeof reportRaw === "object" ? reportRaw : buildFallbackReport();
+      const lines = [];
+      const totals = report.totals || {};
+      lines.push("section,key,value");
+      lines.push(`meta,generated_at,${toCsvCell(report.generated_at || "")}`);
+      lines.push(`meta,window_days,${toCsvCell(report.window_days || "")}`);
+      lines.push(`totals,trades,${toCsvCell(totals.trades || 0)}`);
+      lines.push(`totals,wins,${toCsvCell(totals.wins || 0)}`);
+      lines.push(`totals,losses,${toCsvCell(totals.losses || 0)}`);
+      lines.push(`totals,win_rate_pct,${toCsvCell(totals.win_rate_pct || 0)}`);
+      lines.push(`totals,pnl,${toCsvCell(totals.pnl || 0)}`);
+      lines.push(`totals,avg_pnl,${toCsvCell(totals.avg_pnl || 0)}`);
+      lines.push("");
+      lines.push("strength_symbol,trades,win_rate_pct,pnl");
+      (Array.isArray(report.strengths) ? report.strengths : []).forEach(r => {
+        lines.push([toCsvCell(r.symbol || ""), toCsvCell(r.trades || 0), toCsvCell(r.win_rate_pct || 0), toCsvCell(r.pnl || 0)].join(","));
+      });
+      lines.push("");
+      lines.push("weak_symbol,trades,win_rate_pct,pnl");
+      (Array.isArray(report.weaknesses) ? report.weaknesses : []).forEach(r => {
+        lines.push([toCsvCell(r.symbol || ""), toCsvCell(r.trades || 0), toCsvCell(r.win_rate_pct || 0), toCsvCell(r.pnl || 0)].join(","));
+      });
+      lines.push("");
+      lines.push("day,trades,wins,losses,pnl");
+      (Array.isArray(report.by_day) ? report.by_day : []).forEach(r => {
+        lines.push([toCsvCell(r.day || ""), toCsvCell(r.trades || 0), toCsvCell(r.wins || 0), toCsvCell(r.losses || 0), toCsvCell(r.pnl || 0)].join(","));
+      });
+      lines.push("");
+      lines.push("week,trades,wins,losses,pnl");
+      (Array.isArray(report.by_week) ? report.by_week : []).forEach(r => {
+        lines.push([toCsvCell(r.week || ""), toCsvCell(r.trades || 0), toCsvCell(r.wins || 0), toCsvCell(r.losses || 0), toCsvCell(r.pnl || 0)].join(","));
+      });
+      lines.push("");
+      lines.push("ea_trade_id,symbol,close_time,pnl");
+      (Array.isArray(report.ea_history_trades) ? report.ea_history_trades : []).forEach(r => {
+        lines.push([toCsvCell(r.id || r.deal_id || ""), toCsvCell(r.symbol || ""), toCsvCell(r.close_time || ""), toCsvCell(r.pnl || 0)].join(","));
+      });
+      return lines.join("\n");
+    }
+
+    function exportReportJson() {
+      const report = state.reportSummary && typeof state.reportSummary === "object" ? state.reportSummary : buildFallbackReport();
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      downloadTextFile(`kutea26_report_${stamp}.json`, JSON.stringify(report, null, 2), "application/json;charset=utf-8");
+      log("Report JSON exported");
+    }
+
+    function exportReportCsv() {
+      const report = state.reportSummary && typeof state.reportSummary === "object" ? state.reportSummary : buildFallbackReport();
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      downloadTextFile(`kutea26_report_${stamp}.csv`, buildReportCsv(report), "text/csv;charset=utf-8");
+      log("Report CSV exported");
+    }
+
+    async function refreshReport(manual = false) {
+      const days = getReportDays();
+      try {
+        const report = await api(`/api/reports/summary?days=${days}`);
+        if (report && typeof report === "object" && report.ok !== false) {
+          state.reportSummary = report;
+          state.reportLastFetchMs = Date.now();
+          renderReport(report);
+          if (manual) log("Report refreshed");
+        }
+      } catch (err) {
+        if (manual) log(`Report refresh error: ${err.message}`);
+        renderReport(state.reportSummary || buildFallbackReport());
+      }
+    }
+
     function formatTimeLabel(unixTs) {
       return new Date(Number(unixTs) * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     }
@@ -1854,7 +3383,13 @@ Mode: IDLE</div>
         active = "No open positions";
       } else if (state.connected && state.eaRunning && (state.trades || []).length === 0) {
         thinking = "Scanning markets";
-        waiting = "Entry conditions";
+        waiting = state.triggerFlowMode === "BUY_ONLY"
+          ? "Buy-side entry conditions"
+          : state.triggerFlowMode === "SELL_ONLY"
+            ? "Sell-side entry conditions"
+            : state.triggerFlowMode === "AUTO"
+              ? "Auto bias entry conditions"
+              : "Entry conditions";
         active = state.selectedSymbol || "Allowed symbols";
         mode = "RUNNING";
       } else if (state.connected && state.eaRunning && (state.trades || []).length > 0) {
@@ -1878,6 +3413,8 @@ Mode: IDLE</div>
           waiting_for: waiting,
           active
         },
+        manual_trade_enabled: !!state.manualTradeEnabled,
+        trigger_flow_mode: normalizeTriggerFlowMode(state.triggerFlowMode),
         tag_stats: [],
         tag_stats_updated_at: null
       };
@@ -1992,6 +3529,8 @@ Mode: IDLE</div>
     function renderInsight(insightRaw = null) {
       const insight = insightRaw && typeof insightRaw === "object" ? insightRaw : buildFallbackInsight();
       state.sessionInsight = insight;
+      setManualTradeEnabled(!!insight.manual_trade_enabled, "backend");
+      setTriggerFlowMode(insight.trigger_flow_mode || state.triggerFlowMode, "backend");
       const session = insight.session || {};
       const bot = insight.bot_state || {};
       const realized = Number(session.realized || 0);
@@ -2012,7 +3551,7 @@ Mode: IDLE</div>
       const mode = String(bot.mode || "IDLE").toUpperCase();
       el.botModeChip.textContent = `Bot: ${mode}`;
       el.botThinkingValue.textContent = thinking;
-      el.botActivityMeta.textContent = `Active: ${active}\nWaiting: ${waiting}\nMode: ${mode}`;
+      el.botActivityMeta.textContent = `Active: ${active}\nWaiting: ${waiting}\nMode: ${mode}\nTrigger: ${state.triggerFlowMode}`;
       renderTagStats(insight);
     }
 
@@ -2424,34 +3963,161 @@ Mode: IDLE</div>
       return -1;
     }
 
-    function drawLivePositionOverlays(ctx, vp, digits) {
-      if (!Array.isArray(state.trades) || !state.selectedSymbol) return;
-      const rows = state.trades
+    function getOpenTradesForSelectedSymbol(maxRows = 6) {
+      if (!Array.isArray(state.trades) || !state.selectedSymbol) return [];
+      return state.trades
         .filter(t => String(t.symbol || "") === state.selectedSymbol)
         .filter(t => String(t.status || "Open").toLowerCase() === "open")
-        .slice(0, 3);
+        .slice(0, Math.max(1, maxRows));
+    }
+
+    function drawLiveTradeLevelLine(ctx, vp, price, label, lineColor, tagBg, digits, dashed = false, yOffset = 0, active = false) {
+      if (!Number.isFinite(price)) return;
+      const yRaw = yForPrice(price, vp);
+      const y = yRaw + yOffset;
+      ctx.save();
+      ctx.lineWidth = active ? 2.1 : 1.35;
+      ctx.strokeStyle = lineColor;
+      if (dashed) ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(vp.left, y);
+      ctx.lineTo(vp.left + vp.plotW, y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font = "11px Segoe UI";
+      drawPriceTag(
+        ctx,
+        vp.left + Math.max(8, vp.plotW - 170),
+        y,
+        `${label}: ${formatPrice(price, digits)}`,
+        tagBg,
+        "#f2f7ff",
+        vp.top,
+        vp.top + vp.plotH
+      );
+      ctx.restore();
+    }
+
+    function liveLevelHandleX(vp) {
+      return vp.left + vp.plotW - 14;
+    }
+
+    function drawLiveLevelHandle(ctx, vp, price, yOffset, color, active = false) {
+      if (!Number.isFinite(price)) return;
+      const y = yForPrice(price, vp) + Number(yOffset || 0);
+      const x = liveLevelHandleX(vp);
+      const r = active ? 7 : 5.5;
+      ctx.save();
+      ctx.beginPath();
+      ctx.fillStyle = active ? "#eef7ff" : color;
+      ctx.strokeStyle = active ? color : "#dce8ff";
+      ctx.lineWidth = active ? 2 : 1.3;
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function findLiveTradeLevelAt(x, y, vp, pointerType = "mouse") {
+      if (!vp) return null;
+      const rows = getOpenTradesForSelectedSymbol(6);
+      const isTouchLike = pointerType === "touch" || pointerType === "pen";
+      const handleTol = isTouchLike ? 24 : 14;
+      const lineTol = isTouchLike ? 14 : 9;
+      const hx = liveLevelHandleX(vp);
+      let best = null;
+      let bestPriority = 999;
+      let bestDist = 999999;
+      rows.forEach((t, idx) => {
+        const yOffset = 0;
+        const sl = Number(t.sl);
+        const tp = Number(t.tp);
+        if (Number.isFinite(sl) && sl > 0) {
+          const yy = yForPrice(sl, vp) + yOffset;
+          const dHandle = Math.hypot(x - hx, y - yy);
+          if (dHandle <= handleTol && (0 < bestPriority || (bestPriority === 0 && dHandle < bestDist))) {
+            bestPriority = 0;
+            bestDist = dHandle;
+            best = { ticket: Number(t.id || 0), level: "sl", y: yy, trade: t, price: sl, yOffset, hitType: "handle" };
+          }
+          const dist = Math.abs(y - yy);
+          if (dist <= lineTol && (1 < bestPriority || (bestPriority === 1 && dist < bestDist))) {
+            bestPriority = 1;
+            bestDist = dist;
+            best = { ticket: Number(t.id || 0), level: "sl", y: yy, trade: t, price: sl, yOffset, hitType: "line" };
+          }
+        }
+        if (Number.isFinite(tp) && tp > 0) {
+          const yy = yForPrice(tp, vp) + yOffset;
+          const dHandle = Math.hypot(x - hx, y - yy);
+          if (dHandle <= handleTol && (0 < bestPriority || (bestPriority === 0 && dHandle < bestDist))) {
+            bestPriority = 0;
+            bestDist = dHandle;
+            best = { ticket: Number(t.id || 0), level: "tp", y: yy, trade: t, price: tp, yOffset, hitType: "handle" };
+          }
+          const dist = Math.abs(y - yy);
+          if (dist <= lineTol && (1 < bestPriority || (bestPriority === 1 && dist < bestDist))) {
+            bestPriority = 1;
+            bestDist = dist;
+            best = { ticket: Number(t.id || 0), level: "tp", y: yy, trade: t, price: tp, yOffset, hitType: "line" };
+          }
+        }
+      });
+      return best;
+    }
+
+    function drawLiveTradeEditDraft(ctx, vp, digits) {
+      const d = state.liveTradeEditDraft;
+      if (!d || !Number.isFinite(d.currentPrice)) return;
+      const label = d.level === "sl" ? "SL (drag)" : "TP (drag)";
+      const color = d.level === "sl" ? "rgba(255,192,192,1)" : "rgba(178,244,206,1)";
+      drawLiveTradeLevelLine(ctx, vp, Number(d.currentPrice), label, color, "#6b5a2a", digits, false, Number(d.yOffset || 0), true);
+      const entry = Number(d.entry || 0);
+      const p = Number(d.currentPrice || 0);
+      const delta = Number.isFinite(entry) && entry > 0 ? (p - entry) : 0;
+      const side = String(d.level || "").toUpperCase();
+      const text = `${side}: ${formatPrice(p, digits)} | d=${delta >= 0 ? "+" : ""}${formatPrice(delta, digits)}`;
+      const px = Number.isFinite(state.liveTradeDragX) ? Number(state.liveTradeDragX) : liveLevelHandleX(vp);
+      const py = Number.isFinite(state.liveTradeDragY) ? Number(state.liveTradeDragY) : (yForPrice(p, vp) + Number(d.yOffset || 0));
+      const tipX = clampNumber(px + 14, vp.left + 6, vp.left + vp.plotW - 220);
+      const tipY = clampNumber(py - 18, vp.top + 12, vp.top + vp.plotH - 12);
+      ctx.save();
+      ctx.font = "11px Segoe UI";
+      drawPriceTag(ctx, tipX, tipY, text, "rgba(19,41,70,0.95)", "#ecf4ff", vp.top, vp.top + vp.plotH);
+      drawPriceTag(ctx, tipX, tipY + 18, "Release to apply", "rgba(26,58,97,0.9)", "#d8e9ff", vp.top, vp.top + vp.plotH);
+      ctx.restore();
+    }
+
+    function drawLivePositionOverlays(ctx, vp, digits) {
+      const rows = getOpenTradesForSelectedSymbol(6);
+      if (!rows.length) return;
+
       rows.forEach((t, idx) => {
         const entry = Number(t.entry);
         const sl = Number(t.sl);
         const tp = Number(t.tp);
         if (!Number.isFinite(entry)) return;
-        const sideRaw = String(t.side || "").toUpperCase();
-        const side = sideRaw === "SELL" ? "SHORT" : "LONG";
-        const wBars = Math.max(16, Math.floor(vp.count * 0.26));
-        const rightIndex = vp.endIndex - 2 - idx * Math.max(2, Math.floor(vp.count * 0.02));
-        const leftIndex = rightIndex - wBars;
-        const stop = (Number.isFinite(sl) && sl > 0) ? sl : null;
-        const target = (Number.isFinite(tp) && tp > 0) ? tp : null;
-        drawPositionProjection(ctx, vp, {
-          side,
-          entry,
-          stop,
-          target,
-          i1: leftIndex,
-          i2: rightIndex,
-          qty: Number(t.lot || 0),
-        }, digits, false);
+        const yOffset = 0;
+        const draft = state.liveTradeEditDraft;
+        const slPx = (draft && Number(draft.ticket) === Number(t.id || 0) && draft.level === "sl" && Number.isFinite(draft.currentPrice))
+          ? Number(draft.currentPrice)
+          : sl;
+        const tpPx = (draft && Number(draft.ticket) === Number(t.id || 0) && draft.level === "tp" && Number.isFinite(draft.currentPrice))
+          ? Number(draft.currentPrice)
+          : tp;
+        drawLiveTradeLevelLine(ctx, vp, entry, "Entry", "rgba(190,198,213,0.96)", "#2a3446", digits, true, yOffset);
+        if (Number.isFinite(slPx) && slPx > 0) {
+          const active = !!(draft && Number(draft.ticket) === Number(t.id || 0) && draft.level === "sl");
+          drawLiveTradeLevelLine(ctx, vp, slPx, "SL", "rgba(255,145,145,0.96)", "#5a2f39", digits, false, yOffset, active);
+          drawLiveLevelHandle(ctx, vp, slPx, yOffset, "rgba(255,145,145,0.96)", active);
+        }
+        if (Number.isFinite(tpPx) && tpPx > 0) {
+          const active = !!(draft && Number(draft.ticket) === Number(t.id || 0) && draft.level === "tp");
+          drawLiveTradeLevelLine(ctx, vp, tpPx, "TP", "rgba(141,232,182,0.98)", "#21513f", digits, false, yOffset, active);
+          drawLiveLevelHandle(ctx, vp, tpPx, yOffset, "rgba(141,232,182,0.98)", active);
+        }
       });
+      drawLiveTradeEditDraft(ctx, vp, digits);
     }
 
     function buildPositionDraft(side, points, vp, fallbackPoint = null) {
@@ -2620,9 +4286,13 @@ Mode: IDLE</div>
       );
       state.chartVisibleCount = visible;
       const maxPan = Math.max(0, fullCandles.length - visible);
-      state.chartPanBars = clampNumber(Math.round(state.chartPanBars || 0), 0, maxPan);
-      const endIndex = fullCandles.length - state.chartPanBars;
-      const startIndex = Math.max(0, endIndex - visible);
+      const minPan = state.chartFreeMove ? -Math.max(30, Math.floor(visible * 2.0)) : 0;
+      state.chartPanBars = clampNumber(Math.round(state.chartPanBars || 0), minPan, maxPan);
+      const rightPadBars = state.chartPanBars < 0 ? Math.abs(state.chartPanBars) : 0;
+      const panFromRight = Math.max(0, state.chartPanBars);
+      const effectiveVisible = Math.max(20, visible - rightPadBars);
+      const endIndex = fullCandles.length - panFromRight;
+      const startIndex = Math.max(0, endIndex - effectiveVisible);
       const candles = fullCandles.slice(startIndex, endIndex);
 
       const digits = inferPriceDigits(candles);
@@ -2649,9 +4319,10 @@ Mode: IDLE</div>
       const plotH = height - top - bottom;
       const vp = {
         left, right, top, bottom, plotW, plotH, hi, lo,
-        count: candles.length,
+        count: candles.length + rightPadBars,
         startIndex,
-        endIndex,
+        endIndex: startIndex + candles.length + rightPadBars,
+        candleEndIndex: startIndex + candles.length,
         totalCount: fullCandles.length,
         priceDigits: digits
       };
@@ -2829,6 +4500,7 @@ Mode: IDLE</div>
     }
 
     function setFreeMove(enabled) {
+      const wasOn = !!state.chartFreeMove;
       state.chartFreeMove = !!enabled;
       el.freeMoveBtn.textContent = `Free Move: ${state.chartFreeMove ? "On" : "Off"}`;
       el.freeMoveBtn.classList.toggle("active", state.chartFreeMove);
@@ -2838,6 +4510,7 @@ Mode: IDLE</div>
         state.chartPointerSamples = {};
       }
       schedulePersistChartMemory();
+      drawMarketChart();
     }
 
     function onChartWheel(evt) {
@@ -2854,11 +4527,62 @@ Mode: IDLE</div>
       applyChartZoom(evt.deltaY < 0 ? 1 : -1, pt ? pt.x : null);
     }
 
+    async function commitLiveTradeLevelEdit(draft) {
+      if (!draft || !Number.isFinite(Number(draft.ticket)) || !Number.isFinite(Number(draft.currentPrice))) return;
+      const ticket = Number(draft.ticket);
+      const level = String(draft.level || "").toLowerCase();
+      if (level !== "sl" && level !== "tp") return;
+      const oldP = Number(draft.originalPrice || 0);
+      const newP = Number(draft.currentPrice || 0);
+      if (!(newP > 0)) {
+        log(`Trade #${ticket} ${level.toUpperCase()} drag ignored: invalid price`);
+        return;
+      }
+      if (Math.abs(newP - oldP) <= 0.0000001) return;
+      const body = { ticket };
+      body[level] = newP;
+      try {
+        const res = await api("/api/trades/modify", { method: "POST", body });
+        const applied = res?.applied && typeof res.applied === "object" ? res.applied : {};
+        const appliedPx = Number(applied[level] || newP);
+        const note = Array.isArray(res?.notes) && res.notes.length ? ` (${res.notes.join("; ")})` : "";
+        log(`Trade #${ticket} ${level.toUpperCase()} updated to ${appliedPx.toFixed(5)}${note}`);
+        await pollBackend();
+        await fetchMarketCandles(false);
+      } catch (err) {
+        log(`Error: ${err.message}`);
+      }
+    }
+
     function onChartPointerDown(evt) {
       const pt = chartPointFromEvent(evt);
       if (!pt || !state.selectedSymbol) return;
       state.chartHover = (pt.inside || pt.axis) ? { i: pt.i, p: pt.p } : null;
       trackPointer(evt, pt);
+
+      if (state.chartTool === "none" && pt.inside && pt.vp) {
+        const liveHit = findLiveTradeLevelAt(pt.x, pt.y, pt.vp, String(evt.pointerType || "mouse"));
+        if (liveHit && Number(liveHit.ticket || 0) > 0) {
+          const entryPx = Number((liveHit.trade || {}).entry || 0);
+          state.liveTradeEditDraft = {
+            ticket: Number(liveHit.ticket),
+            level: String(liveHit.level || "").toLowerCase(),
+            originalPrice: Number(liveHit.price || 0),
+            currentPrice: Number(liveHit.price || 0),
+            entry: entryPx,
+            yOffset: Number(liveHit.yOffset || 0),
+          };
+          state.liveTradeDragX = Number(pt.x);
+          state.liveTradeDragY = Number(pt.y);
+          state.chartPointerId = evt.pointerId ?? null;
+          if (evt.pointerId !== undefined && evt.pointerId !== null) {
+            try { el.marketChart.setPointerCapture(evt.pointerId); } catch (_) {}
+          }
+          el.marketChart.style.cursor = "ns-resize";
+          drawMarketChart();
+          return;
+        }
+      }
 
       if (pt.inside && pt.vp) {
         const hit = findPositionHandleAt(pt.x, pt.y, pt.vp);
@@ -2959,6 +4683,20 @@ Mode: IDLE</div>
       state.chartHover = (pt.inside || pt.axis) ? { i: pt.i, p: pt.p } : null;
       trackPointer(evt, pt);
 
+      if (state.liveTradeEditDraft && state.chartViewport) {
+        const vp = state.chartViewport;
+        const rect = el.marketChart.getBoundingClientRect();
+        const x = evt.clientX - rect.left;
+        const y = evt.clientY - rect.top;
+        const cy = clampNumber(y, vp.top, vp.top + vp.plotH);
+        state.liveTradeEditDraft.currentPrice = Number(priceFromY(cy, vp));
+        state.liveTradeDragX = Number(clampNumber(x, vp.left, vp.left + vp.plotW));
+        state.liveTradeDragY = Number(cy);
+        el.marketChart.style.cursor = "ns-resize";
+        drawMarketChart();
+        return;
+      }
+
       if (state.chartPositionDraft && state.chartViewport) {
         const rect = el.marketChart.getBoundingClientRect();
         const x = evt.clientX - rect.left;
@@ -2994,7 +4732,8 @@ Mode: IDLE</div>
         const barsPerPx = vp.count / Math.max(1, vp.plotW);
         const deltaBars = Math.round((centerX - state.chartPinchStartCenterX) * barsPerPx);
         const maxPan = Math.max(0, total - nextVisible);
-        state.chartPanBars = clampNumber(state.chartPinchStartPanBars + deltaBars, 0, maxPan);
+        const minPan = state.chartFreeMove ? -Math.max(30, Math.floor(nextVisible * 2.0)) : 0;
+        state.chartPanBars = clampNumber(state.chartPinchStartPanBars + deltaBars, minPan, maxPan);
         const yFactor = state.chartPinchStartDist / dist;
         state.chartYZoom = clampNumber(state.chartPinchStartYZoom * yFactor, 0.5, 6);
         const pricePerPx = (vp.hi - vp.lo) / Math.max(1, vp.plotH);
@@ -3011,7 +4750,8 @@ Mode: IDLE</div>
         const barsPerPx = vp.count / Math.max(1, vp.plotW);
         const deltaBars = Math.round((px - state.chartPanStartX) * barsPerPx);
         const maxPan = Math.max(0, (vp.totalCount || state.chartTotalCount) - state.chartVisibleCount);
-        state.chartPanBars = clampNumber(state.chartPanStartBars + deltaBars, 0, maxPan);
+        const minPan = state.chartFreeMove ? -Math.max(30, Math.floor(state.chartVisibleCount * 2.0)) : 0;
+        state.chartPanBars = clampNumber(state.chartPanStartBars + deltaBars, minPan, maxPan);
         const pricePerPx = (vp.hi - vp.lo) / Math.max(1, vp.plotH);
         const deltaPrice = (py - state.chartPanStartY) * pricePerPx;
         state.chartYShift = state.chartPanStartYShift + deltaPrice;
@@ -3028,11 +4768,31 @@ Mode: IDLE</div>
       if (state.chartPointerDown && pt.inside && (state.chartTool === "trend" || state.chartTool === "rect")) {
         state.chartDragCurrent = { i: pt.i, p: pt.p };
       }
+      if (state.chartTool === "none" && pt.inside && pt.vp) {
+        const h = findLiveTradeLevelAt(pt.x, pt.y, pt.vp, String(evt.pointerType || "mouse"));
+        el.marketChart.style.cursor = h ? "ns-resize" : "default";
+      } else {
+        el.marketChart.style.cursor = "default";
+      }
       drawMarketChart();
     }
 
     function onChartPointerUp(evt) {
       untrackPointer(evt.pointerId);
+      if (state.liveTradeEditDraft) {
+        const draft = { ...state.liveTradeEditDraft };
+        state.liveTradeEditDraft = null;
+        state.liveTradeDragX = null;
+        state.liveTradeDragY = null;
+        if (state.chartPointerId !== null) {
+          try { el.marketChart.releasePointerCapture(state.chartPointerId); } catch (_) {}
+        }
+        state.chartPointerId = null;
+        el.marketChart.style.cursor = "default";
+        drawMarketChart();
+        commitLiveTradeLevelEdit(draft);
+        return;
+      }
       if (state.chartPositionDraft) {
         state.chartPositionDraft = null;
         if (state.chartPointerId !== null) {
@@ -3107,6 +4867,7 @@ Mode: IDLE</div>
       state.chartPointerSamples = {};
       state.chartPinchMode = false;
       state.chartHover = null;
+      if (!state.liveTradeEditDraft) el.marketChart.style.cursor = "default";
       if (!state.chartPointerDown && !state.chartPanMode && !state.chartScaleMode && !state.chartPinchMode) drawMarketChart();
     }
 
@@ -3179,7 +4940,7 @@ Mode: IDLE</div>
 
     async function startEngine() {
       if (!state.connected) { log("Error: Broker not connected"); return; }
-      if (!state.mq5Loaded) { log("Error: Upload EA .mq5 first"); return; }
+      if (!state.mq5Loaded) { log("Error: Upload EA .ex5 or .mq5 first"); return; }
       if (!applyAllowedSymbols(false)) return;
       const settings = collectSettings();
       const allowedSymbols = [...state.allowedSymbols];
@@ -3191,12 +4952,16 @@ Mode: IDLE</div>
             settings,
             allowed_symbols: allowedSymbols,
             primary_symbol: primarySymbol,
-            chart_tf: normalizeTf(state.chartTf)
+            chart_tf: normalizeTf(state.chartTf),
+            trigger_flow_mode: state.triggerFlowMode,
+            manual_trade_enabled: state.manualTradeEnabled
           }
         });
         if (Array.isArray(res.allowed_symbols) && res.allowed_symbols.length) {
           setAllowedSymbols(res.allowed_symbols, true);
         }
+        setManualTradeEnabled(!!res.manual_trade_enabled, "backend");
+        setTriggerFlowMode(res.trigger_flow_mode || state.triggerFlowMode, "backend");
         if (!state.selectedSymbol && res.primary_symbol) {
           focusMarketSymbol(res.primary_symbol, false);
         } else if (!state.selectedSymbol && primarySymbol) {
@@ -3206,6 +4971,9 @@ Mode: IDLE</div>
         await syncMarketContext(false);
         await fetchMarketCandles(true);
         showPanel("marketPanel");
+        if (res.automation_command_written === false && res.automation_command_detail) {
+          log(`Automation command warning: ${res.automation_command_detail}`);
+        }
         log("EA execution started");
       } catch (err) {
         log(`Error: ${err.message}`);
@@ -3233,12 +5001,16 @@ Mode: IDLE</div>
             settings,
             allowed_symbols: allowedSymbols,
             primary_symbol: primarySymbol,
-            chart_tf: normalizeTf(state.chartTf)
+            chart_tf: normalizeTf(state.chartTf),
+            trigger_flow_mode: state.triggerFlowMode,
+            manual_trade_enabled: state.manualTradeEnabled
           }
         });
         if (Array.isArray(res.allowed_symbols) && res.allowed_symbols.length) {
           setAllowedSymbols(res.allowed_symbols, true);
         }
+        setManualTradeEnabled(!!res.manual_trade_enabled, "backend");
+        setTriggerFlowMode(res.trigger_flow_mode || state.triggerFlowMode, "backend");
         if (!state.selectedSymbol && res.primary_symbol) {
           focusMarketSymbol(res.primary_symbol, false);
         } else if (!state.selectedSymbol && primarySymbol) {
@@ -3247,6 +5019,9 @@ Mode: IDLE</div>
         setEngineState(true);
         await syncMarketContext(false);
         await fetchMarketCandles(true);
+        if (res.automation_command_written === false && res.automation_command_detail) {
+          log(`Automation command warning: ${res.automation_command_detail}`);
+        }
         log("EA restart triggered");
       } catch (err) {
         log(`Error: ${err.message}`);
@@ -3258,13 +5033,17 @@ Mode: IDLE</div>
       try {
         const nowMs = Date.now();
         const refreshAnalytics = (nowMs - Number(state.analyticsLastFetchMs || 0)) >= 5000;
+        const refreshReportData = (nowMs - Number(state.reportLastFetchMs || 0)) >= 7000;
         const analyticsReq = refreshAnalytics
           ? api("/api/analytics/summary?days=7").catch(() => null)
           : Promise.resolve(state.analyticsSummary);
         const watchdogReq = refreshAnalytics
           ? api("/api/watchdog/status").catch(() => null)
           : Promise.resolve(state.watchdogStatus);
-        const [broker, ea, live, hist, logs, insight, analyticsRes, watchdogRes] = await Promise.all([
+        const reportReq = refreshReportData
+          ? api(`/api/reports/summary?days=${getReportDays()}`).catch(() => null)
+          : Promise.resolve(state.reportSummary);
+        const [broker, ea, live, hist, logs, insight, analyticsRes, watchdogRes, reportRes] = await Promise.all([
           api("/api/broker/status"),
           api("/api/ea/status"),
           api("/api/trades/live"),
@@ -3272,12 +5051,17 @@ Mode: IDLE</div>
           api("/api/logs"),
           api("/api/ea/insight").catch(() => null),
           analyticsReq,
-          watchdogReq
+          watchdogReq,
+          reportReq
         ]);
         setBackendApiState(true, "Connected");
         setBrokerStatus(broker.connected, broker.connected ? "Connected" : "Disconnected");
         state.connected = !!broker.connected;
+        state.accountSnapshot = broker.account || {};
+        renderAccount(state.accountSnapshot);
         state.mq5Loaded = !!ea.ea_loaded;
+        setManualTradeEnabled(!!ea.manual_trade_enabled, "backend");
+        setTriggerFlowMode(ea.trigger_flow_mode || state.triggerFlowMode, "backend");
         state.trades = live.trades || [];
         state.history = hist.trades || [];
         setEngineState(!!ea.running);
@@ -3304,16 +5088,23 @@ Mode: IDLE</div>
           state.watchdogStatus = watchdogRes;
           state.analyticsLastFetchMs = nowMs;
         }
+        if (reportRes && typeof reportRes === "object" && reportRes.ok !== false) {
+          state.reportSummary = reportRes;
+          state.reportLastFetchMs = nowMs;
+        }
         renderAnalytics(state.analyticsSummary, state.watchdogStatus);
+        renderReport(state.reportSummary);
         syncChartSymbolOptions();
         await fetchMarketCandles(false);
         (logs.logs || []).forEach(item => log(item.msg || "", true));
       } catch (err) {
         setBackendApiState(false, "Disconnected");
         setBrokerStatus(false, "Disconnected");
+        renderAccount({});
         setEngineState(false);
         renderInsight(buildFallbackInsight());
         renderAnalytics(state.analyticsSummary || buildFallbackAnalytics(), state.watchdogStatus || buildFallbackWatchdog());
+        renderReport(state.reportSummary || buildFallbackReport());
         if (!isFileMode()) log(`Backend poll error: ${err.message}`);
       }
     }
@@ -3348,8 +5139,37 @@ Mode: IDLE</div>
       el.restartBtn.addEventListener("click", restartEngine);
       el.liveBody.addEventListener("click", (evt) => {
         const btn = evt.target.closest(".symbol-jump");
-        if (!btn) return;
-        focusMarketSymbol(btn.dataset.symbol || "", true);
+        if (btn) {
+          focusMarketSymbol(btn.dataset.symbol || "", true);
+          return;
+        }
+        const rowEl = evt.target.closest("tr[data-live-ticket]");
+        if (!rowEl) return;
+        const ticket = Number(rowEl.getAttribute("data-live-ticket") || 0);
+        if (!(ticket > 0)) return;
+        const row = (state.trades || []).find(t => Number(t.id || 0) === ticket);
+        if (!row) return;
+        openTradeDetailModal(row, "live");
+      });
+      el.historyBody.addEventListener("click", (evt) => {
+        const rowEl = evt.target.closest("tr[data-history-ticket]");
+        if (!rowEl) return;
+        const ticket = Number(rowEl.getAttribute("data-history-ticket") || 0);
+        if (!(ticket > 0)) return;
+        const row = (state.history || []).find(t => Number(t.id || 0) === ticket);
+        if (!row) return;
+        openTradeDetailModal(row, "history");
+      });
+      if (el.tradeDetailCloseBtn) {
+        el.tradeDetailCloseBtn.addEventListener("click", closeTradeDetailModal);
+      }
+      if (el.tradeDetailModal) {
+        el.tradeDetailModal.addEventListener("click", (evt) => {
+          if (evt.target === el.tradeDetailModal) closeTradeDetailModal();
+        });
+      }
+      document.addEventListener("keydown", (evt) => {
+        if (evt.key === "Escape" && state.tradeDetailModalOpen) closeTradeDetailModal();
       });
       el.chartSymbol.addEventListener("change", () => {
         state.selectedSymbol = normalizeSymbol(el.chartSymbol.value);
@@ -3419,6 +5239,59 @@ Mode: IDLE</div>
       el.autoScaleBtn.addEventListener("click", autoScaleToCurrentPrice);
       el.freeMoveBtn.addEventListener("click", () => setFreeMove(!state.chartFreeMove));
       el.closeTradeBtn.addEventListener("click", closeTradeForSelectedSymbol);
+      if (el.dispatchAutomationBtn) {
+        el.dispatchAutomationBtn.addEventListener("click", () => dispatchMt5AutomationCommand(true));
+      }
+      if (el.manualOrderType) {
+        el.manualOrderType.addEventListener("change", updateManualOrderUi);
+      }
+      if (el.manualTradeMode) {
+        el.manualTradeMode.addEventListener("change", () => {
+          setManualTradeEnabled(el.manualTradeMode.value === "on");
+          syncManualConfig(true);
+        });
+      }
+      if (el.triggerFlowMode) {
+        el.triggerFlowMode.addEventListener("change", () => {
+          setTriggerFlowMode(el.triggerFlowMode.value);
+          syncManualConfig(true);
+        });
+      }
+      if (el.manualBuyBtn) {
+        el.manualBuyBtn.addEventListener("click", () => placeManualOrder("BUY"));
+      }
+      if (el.manualSellBtn) {
+        el.manualSellBtn.addEventListener("click", () => placeManualOrder("SELL"));
+      }
+      if (el.refreshReportBtn) {
+        el.refreshReportBtn.addEventListener("click", () => refreshReport(true));
+      }
+      if (el.exportReportJsonBtn) {
+        el.exportReportJsonBtn.addEventListener("click", exportReportJson);
+      }
+      if (el.exportReportCsvBtn) {
+        el.exportReportCsvBtn.addEventListener("click", exportReportCsv);
+      }
+      if (el.reportDays) {
+        el.reportDays.addEventListener("change", () => {
+          const days = getReportDays();
+          el.reportDays.value = String(days);
+          refreshReport(true);
+        });
+      }
+      if (el.reportTabButtons && el.reportTabButtons.length) {
+        el.reportTabButtons.forEach(btn => {
+          btn.addEventListener("click", () => {
+            setReportTab(btn.dataset.reportTab || "summary", true);
+          });
+        });
+      }
+      if (el.clearTriggerFlowBtn) {
+        el.clearTriggerFlowBtn.addEventListener("click", () => {
+          resetTriggerFlowPanel();
+          log("Trigger Flow panel cleared");
+        });
+      }
       el.marketChart.addEventListener("pointerdown", onChartPointerDown);
       el.marketChart.addEventListener("pointermove", onChartPointerMove);
       el.marketChart.addEventListener("pointerup", onChartPointerUp);
@@ -3446,15 +5319,23 @@ Mode: IDLE</div>
         state.apiSessionToken = "";
         setBackendApiState(false, "Disconnected");
         setEngineState(false);
+        setManualTradeEnabled(false, "backend");
+        setTriggerFlowMode("BOTH", "backend");
         stopPolling();
         state.marketCandles = {};
         state.marketStructure = {};
+        state.accountSnapshot = {};
         state.analyticsSummary = null;
         state.watchdogStatus = null;
         state.analyticsLastFetchMs = 0;
+        state.reportSummary = null;
+        state.reportLastFetchMs = 0;
+        resetTriggerFlowPanel();
         restoreCachedCandlesFor(state.selectedSymbol, state.chartTf);
+        renderAccount({});
         renderInsight(buildFallbackInsight());
         renderAnalytics(buildFallbackAnalytics(), buildFallbackWatchdog());
+        renderReport(buildFallbackReport());
         drawMarketChart();
         if (state.authenticated) log("Backend API URL changed. Click Connect Backend to retry.");
       });
@@ -3476,13 +5357,20 @@ Mode: IDLE</div>
     }
     setChartTool("none");
     setFreeMove(state.chartFreeMove);
+    setReportTab(state.reportTab || "summary", false);
+    setTriggerFlowMode(state.triggerFlowMode || "BOTH", "backend");
+    setManualTradeEnabled(!!state.manualTradeEnabled, "backend");
+    updateManualOrderUi();
     el.setFile.disabled = true;
     el.setFileName.textContent = "No .set loaded";
     loadSession();
     renderLive([]);
     renderHistory([]);
+    renderAccount({});
     renderInsight(buildFallbackInsight());
     renderAnalytics(buildFallbackAnalytics(), buildFallbackWatchdog());
+    renderReport(buildFallbackReport());
+    updateTriggerFlowCount();
     if (state.selectedSymbol) restoreCachedCandlesFor(state.selectedSymbol, state.chartTf);
     drawMarketChart();
     if (memory) log(`Local memory active (${MAX_LOCAL_BARS} bars max per symbol/TF).`);
@@ -3490,3 +5378,4 @@ Mode: IDLE</div>
   </script>
 </body>
 </html>
+
