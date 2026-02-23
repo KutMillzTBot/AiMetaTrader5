@@ -180,6 +180,17 @@
       font-size: 0.85rem;
       background: #0f1a2f;
     }
+    .chip.block-chip {
+      max-width: min(560px, 95vw);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .chip.block-chip.has-reason {
+      border-color: rgba(191, 92, 110, 0.72);
+      color: #ffd5dd;
+      background: linear-gradient(180deg, #2a1723, #23131d);
+    }
     .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
     .card {
       grid-column: span 12;
@@ -372,6 +383,41 @@
     }
     .trade-modal-body {
       padding: 12px 14px 14px;
+    }
+    .trade-modal-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .trade-modal-modify {
+      width: auto;
+      border-radius: 8px;
+      border: 1px solid #3f6aa7;
+      background: linear-gradient(180deg, #2a63b8, #214e92);
+      color: #eff6ff;
+      padding: 8px 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .trade-modal-modify[disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .trade-modal-danger {
+      width: auto;
+      border-radius: 8px;
+      border: 1px solid #8d3f4b;
+      background: linear-gradient(180deg, #bf5566, #9a3f4f);
+      color: #fff3f5;
+      padding: 8px 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .trade-modal-danger[disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
     .trade-detail-grid {
       display: grid;
@@ -969,10 +1015,36 @@
       .report-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .report-card { grid-column: span 12; }
       .report-hero { flex-direction: column; align-items: flex-start; }
-      #marketChart { height: 430px; }
+      #marketChart { height: min(60vh, 520px); }
       .lock-shell { grid-template-columns: 1fr; max-width: 520px; }
       .lock-brand { order: 2; }
       .auth-card { order: 1; }
+      .trade-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @supports (-webkit-touch-callout: none) {
+      body { -webkit-text-size-adjust: 100%; }
+      .chart-wrap {
+        border-radius: 12px;
+        padding: 8px;
+      }
+      .chart-tool-row {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+      }
+      #marketChart {
+        height: min(64vh, 620px);
+        cursor: default;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .view-btn, .tool-btn {
+        min-height: 34px;
+      }
+      .trade-detail-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -1033,6 +1105,8 @@
         <div class="chip" id="equityChip">Equity: 0.00</div>
         <div class="chip" id="sessionPnlChip">Session P/L: 0.00</div>
         <div class="chip" id="botModeChip">Bot: IDLE</div>
+        <div class="chip" id="supervisorChip">Supervisor: --</div>
+        <div class="chip block-chip" id="blockReasonChip" title="Last entry block reason">Last Block: --</div>
         <div class="chip" id="runStateChip">Engine: Idle</div>
       </div>
 
@@ -1506,6 +1580,13 @@ Mode: IDLE</div>
       </div>
       <div class="trade-modal-body">
         <div id="tradeDetailGrid" class="trade-detail-grid"></div>
+        <div class="trade-modal-actions">
+          <button id="tradeDetailModifyBtn" class="trade-modal-modify" type="button">Modify SL/TP On Chart</button>
+          <button id="tradeDetailSetSlBtn" class="trade-modal-modify" type="button">Set/Adjust SL</button>
+          <button id="tradeDetailSetTpBtn" class="trade-modal-modify" type="button">Set/Adjust TP</button>
+          <button id="tradeDetailCloseTradeBtn" class="trade-modal-danger" type="button">Close Trade</button>
+          <span id="tradeDetailModifyHint" class="hint">Choose an active trade to drag SL/TP handles on Market Chart.</span>
+        </div>
       </div>
     </div>
   </div>
@@ -1567,9 +1648,12 @@ Mode: IDLE</div>
       sessionInsight: {
         session: { realized: 0, floating: 0, total: 0, trades: 0, wins: 0, losses: 0 },
         bot_state: { mode: "IDLE", thinking: "Idle", waiting_for: "Connect broker and start EA", active: "None" },
+        supervisor: null,
         tag_stats: [],
         tag_stats_updated_at: null
       },
+      supervisorStatus: null,
+      lastSupervisorSignature: "",
       preferredSymbol: "",
       selectedSymbol: "",
       allowedSymbols: [],
@@ -1589,7 +1673,11 @@ Mode: IDLE</div>
       liveTradeEditDraft: null,
       tradeDetailModalOpen: false,
       liveTradeDragX: null,
-      liveTradeDragY: null
+      liveTradeDragY: null,
+      quickModifyTicket: 0,
+      tradeDetailContext: null,
+      lastBlockReason: "",
+      lastBlockAt: ""
     };
 
     const memory = (typeof window !== "undefined" && window.KutEA26Memory) ? window.KutEA26Memory : null;
@@ -1630,6 +1718,7 @@ Mode: IDLE</div>
       equityChip: document.getElementById("equityChip"),
       sessionPnlChip: document.getElementById("sessionPnlChip"),
       botModeChip: document.getElementById("botModeChip"),
+      supervisorChip: document.getElementById("supervisorChip"),
       sessionPnlValue: document.getElementById("sessionPnlValue"),
       sessionPnlMeta: document.getElementById("sessionPnlMeta"),
       botThinkingValue: document.getElementById("botThinkingValue"),
@@ -1722,7 +1811,13 @@ Mode: IDLE</div>
       tradeDetailModal: document.getElementById("tradeDetailModal"),
       tradeDetailTitle: document.getElementById("tradeDetailTitle"),
       tradeDetailGrid: document.getElementById("tradeDetailGrid"),
-      tradeDetailCloseBtn: document.getElementById("tradeDetailCloseBtn")
+      tradeDetailCloseBtn: document.getElementById("tradeDetailCloseBtn"),
+      tradeDetailModifyBtn: document.getElementById("tradeDetailModifyBtn"),
+      tradeDetailSetSlBtn: document.getElementById("tradeDetailSetSlBtn"),
+      tradeDetailSetTpBtn: document.getElementById("tradeDetailSetTpBtn"),
+      tradeDetailCloseTradeBtn: document.getElementById("tradeDetailCloseTradeBtn"),
+      tradeDetailModifyHint: document.getElementById("tradeDetailModifyHint"),
+      blockReasonChip: document.getElementById("blockReasonChip")
     };
 
     function nowTime() { return new Date().toLocaleTimeString(); }
@@ -1877,6 +1972,61 @@ Mode: IDLE</div>
       updateTriggerFlowCount();
     }
 
+    function normalizeBlockReasonText(text) {
+      const raw = String(text || "").trim();
+      if (!raw) return "";
+      return raw.replace(/\s+/g, " ").trim();
+    }
+
+    function extractBlockReasonFromMessage(message) {
+      const msg = String(message || "").trim();
+      if (!msg) return "";
+      const m = msg.toLowerCase();
+      if (m.includes("blocked entry:")) {
+        const idxReason = m.indexOf("reason=");
+        if (idxReason >= 0) return normalizeBlockReasonText(msg.slice(idxReason + 7));
+        const idx = m.indexOf("blocked entry:");
+        return normalizeBlockReasonText(msg.slice(idx + "blocked entry:".length));
+      }
+      if (m.includes("trigger wait")) {
+        const idx = msg.indexOf(":");
+        return normalizeBlockReasonText(idx >= 0 ? msg.slice(idx + 1) : msg);
+      }
+      if (m.includes("entry blocked")) {
+        const idx = msg.indexOf(":");
+        return normalizeBlockReasonText(idx >= 0 ? msg.slice(idx + 1) : msg);
+      }
+      if (m.includes("phase2 arm blocked") || m.includes("phase4 arm blocked")) {
+        const idx = msg.indexOf(":");
+        return normalizeBlockReasonText(idx >= 0 ? msg.slice(idx + 1) : msg);
+      }
+      return "";
+    }
+
+    function renderLastBlockChip() {
+      if (!el.blockReasonChip) return;
+      const reason = normalizeBlockReasonText(state.lastBlockReason || "");
+      if (!reason) {
+        el.blockReasonChip.textContent = "Last Block: --";
+        el.blockReasonChip.title = "Last entry block reason";
+        el.blockReasonChip.classList.remove("has-reason");
+        return;
+      }
+      const at = String(state.lastBlockAt || "").trim();
+      const label = `Last Block: ${reason}${at ? ` (${at})` : ""}`;
+      el.blockReasonChip.textContent = label;
+      el.blockReasonChip.title = label;
+      el.blockReasonChip.classList.add("has-reason");
+    }
+
+    function updateLastBlockReasonFromMessage(message) {
+      const reason = extractBlockReasonFromMessage(message);
+      if (!reason) return;
+      state.lastBlockReason = reason;
+      state.lastBlockAt = nowTime();
+      renderLastBlockChip();
+    }
+
     function log(message, remote = false) {
       const key = remote ? `r:${message}` : `l:${message}`;
       if (state.seenLogs.has(key)) return;
@@ -1887,6 +2037,7 @@ Mode: IDLE</div>
       el.systemLog.appendChild(p);
       el.systemLog.scrollTop = el.systemLog.scrollHeight;
       appendTriggerFlow(message);
+      updateLastBlockReasonFromMessage(message);
       bus.dispatchEvent(new CustomEvent("log", { detail: message }));
     }
 
@@ -2275,6 +2426,8 @@ Mode: IDLE</div>
       closeTradeDetailModal();
       state.marketStructure = {};
       state.accountSnapshot = {};
+      state.supervisorStatus = null;
+      state.lastSupervisorSignature = "";
       state.reportSummary = null;
       state.reportLastFetchMs = 0;
       renderAccount({});
@@ -2434,7 +2587,27 @@ Mode: IDLE</div>
       const controls = el.settingsPanel.querySelectorAll("[data-param]");
       const out = {};
       controls.forEach(c => { out[c.dataset.param] = c.value; });
-      state.settings = out;
+      const normalized = normalizeKutMilzSignalSettings(out);
+      if (normalized.InpCrystalIndicatorPath !== out.InpCrystalIndicatorPath) {
+        const pathCtrl = el.settingsPanel.querySelector("[data-param='InpCrystalIndicatorPath']");
+        if (pathCtrl) pathCtrl.value = normalized.InpCrystalIndicatorPath;
+      }
+      if (normalized.InpUseCrystalHeikinSignal !== out.InpUseCrystalHeikinSignal) {
+        const signalCtrl = el.settingsPanel.querySelector("[data-param='InpUseCrystalHeikinSignal']");
+        if (signalCtrl) signalCtrl.value = normalized.InpUseCrystalHeikinSignal;
+      }
+      state.settings = normalized;
+      return normalized;
+    }
+
+    function normalizeKutMilzSignalSettings(settings) {
+      const out = { ...(settings || {}) };
+      const rawPath = String(out.InpCrystalIndicatorPath || "").trim().replace(/\//g, "\\");
+      const isOldCrystal = /Crystal\s+Heikin\s+Ashi/i.test(rawPath);
+      if (!rawPath || isOldCrystal) out.InpCrystalIndicatorPath = "Market\\KUTMilz";
+      if (out.InpUseCrystalHeikinSignal === undefined || out.InpUseCrystalHeikinSignal === "") {
+        out.InpUseCrystalHeikinSignal = "true";
+      }
       return out;
     }
 
@@ -2633,7 +2806,7 @@ Mode: IDLE</div>
           <td>${t.status || "Open"}</td>
         </tr>`;
       }).join("");
-      el.liveBody.innerHTML = html || `<tr><td colspan="9" class="hint">No live transactions</td></tr>`;
+      el.liveBody.innerHTML = html || `<tr><td colspan="10" class="hint">No live transactions</td></tr>`;
     }
 
     function renderHistory(rows = []) {
@@ -2654,7 +2827,7 @@ Mode: IDLE</div>
           <td>${t.close_time || "-"}</td>
         </tr>`;
       }).join("");
-      el.historyBody.innerHTML = html || `<tr><td colspan="9" class="hint">No completed trades</td></tr>`;
+      el.historyBody.innerHTML = html || `<tr><td colspan="10" class="hint">No completed trades</td></tr>`;
     }
 
     function formatDetailValue(v, fallback = "-") {
@@ -2662,14 +2835,95 @@ Mode: IDLE</div>
       return String(v);
     }
 
+    function getLiveTradeByTicket(ticket) {
+      const t = Number(ticket || 0);
+      if (!(t > 0)) return null;
+      return (state.trades || []).find(r => Number(r.id || 0) === t) || null;
+    }
+
+    function suggestLiveLevelPrice(trade, level, vp = null) {
+      if (!trade) return NaN;
+      const lvl = String(level || "").toLowerCase();
+      if (lvl !== "sl" && lvl !== "tp") return NaN;
+      const side = String(trade.side || "").toUpperCase();
+      const entry = Number(trade.entry || 0);
+      const current = Number(trade.current || 0);
+      const base = current > 0 ? current : (entry > 0 ? entry : NaN);
+      if (!Number.isFinite(base) || !(base > 0)) return NaN;
+      const candles = state.selectedSymbol ? (state.marketCandles[chartKey(state.selectedSymbol, state.chartTf)] || []) : [];
+      const digits = (vp && Number.isFinite(Number(vp.priceDigits)))
+        ? Number(vp.priceDigits)
+        : inferPriceDigits(candles.slice(-60));
+      const step = Math.pow(10, -Math.max(2, Math.min(6, digits)));
+      const span = (vp && Number.isFinite(Number(vp.hi)) && Number.isFinite(Number(vp.lo)))
+        ? Math.max(Math.abs(Number(vp.hi) - Number(vp.lo)), step * 120)
+        : Math.max(Math.abs(current - entry), step * 220);
+      const delta = Math.max(span * 0.10, Math.abs(current - entry) * 1.2, step * 120);
+      if (side === "SELL") {
+        return lvl === "sl" ? (base + delta) : Math.max(step, base - delta);
+      }
+      return lvl === "sl" ? Math.max(step, base - delta) : (base + delta);
+    }
+
+    async function prepareTradeOnChart(ticket, symbol) {
+      closeTradeDetailModal();
+      showPanel("marketPanel");
+      state.quickModifyTicket = Number(ticket || 0);
+      focusMarketSymbol(symbol, false);
+      state.chartTool = "none";
+      try {
+        await pollBackend();
+        await fetchMarketCandles(true);
+      } catch (_) {}
+      autoScaleToCurrentPrice();
+    }
+
+    function startTradeLevelEdit(ticket, level, tradeRow = null) {
+      const t = Number(ticket || 0);
+      const lvl = String(level || "").toLowerCase();
+      if (!(t > 0) || (lvl !== "sl" && lvl !== "tp")) return false;
+      const row = tradeRow || getLiveTradeByTicket(t);
+      if (!row) return false;
+      const existing = Number(lvl === "sl" ? row.sl : row.tp);
+      const initialPrice = (Number.isFinite(existing) && existing > 0)
+        ? existing
+        : suggestLiveLevelPrice(row, lvl, state.chartViewport);
+      if (!(Number(initialPrice) > 0)) {
+        log(`Trade #${t} ${lvl.toUpperCase()} edit failed: no valid price seed`);
+        return false;
+      }
+      state.quickModifyTicket = t;
+      state.liveTradeEditDraft = {
+        ticket: t,
+        level: lvl,
+        originalPrice: Number(initialPrice),
+        currentPrice: Number(initialPrice),
+        entry: Number(row.entry || 0),
+        yOffset: 0
+      };
+      const vp = state.chartViewport;
+      if (vp) {
+        state.liveTradeDragX = Number(vp.left + vp.plotW - 14);
+        state.liveTradeDragY = Number(yForPrice(Number(initialPrice), vp));
+      } else {
+        state.liveTradeDragX = null;
+        state.liveTradeDragY = null;
+      }
+      drawMarketChart();
+      const seeded = !(Number.isFinite(existing) && existing > 0);
+      log(`Trade #${t} ${lvl.toUpperCase()} ${seeded ? "seeded" : "ready"} on chart. Drag and release to apply.`);
+      return true;
+    }
+
     function openTradeDetailModal(row, source = "live") {
       if (!row || !el.tradeDetailModal || !el.tradeDetailGrid || !el.tradeDetailTitle) return;
       const r = row || {};
       const pnl = Number(r.pnl || 0);
+      const isLive = source !== "history";
       const details = [
         ["Ticket", formatDetailValue(r.id)],
         ["Position ID", formatDetailValue(r.position_id)],
-        ["Source", source === "history" ? "History" : "Live"],
+        ["Source", isLive ? "Live" : "History"],
         ["Symbol", formatDetailValue(r.symbol)],
         ["Side", formatDetailValue(r.side)],
         ["Lot", Number(r.lot || 0).toFixed(2)],
@@ -2693,6 +2947,24 @@ Mode: IDLE</div>
           <div class="v">${escHtml(v)}</div>
         </div>
       `).join("");
+      state.tradeDetailContext = { ...r, __source: source };
+      if (el.tradeDetailModifyBtn) {
+        el.tradeDetailModifyBtn.disabled = !isLive;
+      }
+      if (el.tradeDetailSetSlBtn) {
+        el.tradeDetailSetSlBtn.disabled = !isLive;
+      }
+      if (el.tradeDetailSetTpBtn) {
+        el.tradeDetailSetTpBtn.disabled = !isLive;
+      }
+      if (el.tradeDetailCloseTradeBtn) {
+        el.tradeDetailCloseTradeBtn.disabled = !isLive;
+      }
+      if (el.tradeDetailModifyHint) {
+        el.tradeDetailModifyHint.textContent = isLive
+          ? "Use Modify / Set SL / Set TP to edit levels on chart. Use Close Trade to close selected live trade."
+          : "History trades are closed. Open a live trade to modify SL/TP or close it.";
+      }
       el.tradeDetailModal.classList.add("show");
       el.tradeDetailModal.setAttribute("aria-hidden", "false");
       state.tradeDetailModalOpen = true;
@@ -2702,7 +2974,83 @@ Mode: IDLE</div>
       if (!el.tradeDetailModal) return;
       el.tradeDetailModal.classList.remove("show");
       el.tradeDetailModal.setAttribute("aria-hidden", "true");
+      state.tradeDetailContext = null;
       state.tradeDetailModalOpen = false;
+    }
+
+    async function modifyTradeFromModal() {
+      const ctx = state.tradeDetailContext || {};
+      const source = String(ctx.__source || "live");
+      if (source === "history") {
+        log("History trade is closed. Select a live trade to modify.");
+        return;
+      }
+      const ticket = Number(ctx.id || 0);
+      const symbol = normalizeSymbol(ctx.symbol || "");
+      if (!(ticket > 0) || !symbol) {
+        log("Error: trade context missing");
+        return;
+      }
+      await prepareTradeOnChart(ticket, symbol);
+      const row = getLiveTradeByTicket(ticket) || ctx;
+      const hasSl = Number(row.sl || 0) > 0;
+      const hasTp = Number(row.tp || 0) > 0;
+      if (!hasSl) {
+        startTradeLevelEdit(ticket, "sl", row);
+      } else if (!hasTp) {
+        startTradeLevelEdit(ticket, "tp", row);
+      } else {
+        log(`Trade #${ticket} ready. Drag existing SL/TP handles on chart.`);
+      }
+    }
+
+    async function startTradeLevelEditFromModal(level) {
+      const ctx = state.tradeDetailContext || {};
+      const source = String(ctx.__source || "live");
+      if (source === "history") {
+        log("History trade is closed. Select a live trade to modify.");
+        return;
+      }
+      const ticket = Number(ctx.id || 0);
+      const symbol = normalizeSymbol(ctx.symbol || "");
+      if (!(ticket > 0) || !symbol) {
+        log("Error: trade context missing");
+        return;
+      }
+      await prepareTradeOnChart(ticket, symbol);
+      const row = getLiveTradeByTicket(ticket) || ctx;
+      startTradeLevelEdit(ticket, level, row);
+    }
+
+    async function closeTradeFromModal() {
+      const ctx = state.tradeDetailContext || {};
+      const source = String(ctx.__source || "live");
+      if (source === "history") {
+        log("History trade is already closed.");
+        return;
+      }
+      const ticket = Number(ctx.id || 0);
+      if (!(ticket > 0)) {
+        log("Error: invalid live ticket");
+        return;
+      }
+      try {
+        const res = await api("/api/trades/close", { method: "POST", body: { ticket } });
+        const closed = Number(res?.closed || 0);
+        const failed = Array.isArray(res?.failed) ? res.failed : [];
+        if (closed > 0) {
+          log(`Trade #${ticket} closed.`);
+        } else if (failed.length) {
+          log(`Trade #${ticket} close failed: ${failed.join(", ")}`);
+        } else {
+          log(`Trade #${ticket} close request sent.`);
+        }
+        closeTradeDetailModal();
+        await pollBackend();
+        await fetchMarketCandles(true);
+      } catch (err) {
+        log(`Error: ${err.message}`);
+      }
     }
 
     function chartKey(symbol, tf) {
@@ -3415,6 +3763,17 @@ Mode: IDLE</div>
         },
         manual_trade_enabled: !!state.manualTradeEnabled,
         trigger_flow_mode: normalizeTriggerFlowMode(state.triggerFlowMode),
+        supervisor: {
+          enabled: false,
+          loaded: false,
+          active: {
+            available: false,
+            active_mode: "NO_TRADE",
+            confidence: 0,
+            preferred_timeframe: "M1",
+            selected_symbol: state.selectedSymbol || ""
+          }
+        },
         tag_stats: [],
         tag_stats_updated_at: null
       };
@@ -3529,10 +3888,13 @@ Mode: IDLE</div>
     function renderInsight(insightRaw = null) {
       const insight = insightRaw && typeof insightRaw === "object" ? insightRaw : buildFallbackInsight();
       state.sessionInsight = insight;
+      state.supervisorStatus = (insight && typeof insight.supervisor === "object") ? insight.supervisor : null;
       setManualTradeEnabled(!!insight.manual_trade_enabled, "backend");
       setTriggerFlowMode(insight.trigger_flow_mode || state.triggerFlowMode, "backend");
       const session = insight.session || {};
       const bot = insight.bot_state || {};
+      const supWrap = state.supervisorStatus && typeof state.supervisorStatus === "object" ? state.supervisorStatus : {};
+      const sup = supWrap.active && typeof supWrap.active === "object" ? supWrap.active : {};
       const realized = Number(session.realized || 0);
       const floating = Number(session.floating || 0);
       const total = Number(session.total || (realized + floating));
@@ -3549,9 +3911,25 @@ Mode: IDLE</div>
       const waiting = String(bot.waiting_for || "Waiting");
       const active = String(bot.active || "None");
       const mode = String(bot.mode || "IDLE").toUpperCase();
+      const supMode = String(sup.active_mode || "NO_TRADE").toUpperCase();
+      const supConf = Number(sup.confidence || 0);
+      const supTf = String(sup.preferred_timeframe || "M1").toUpperCase();
+      const supSymbol = String(sup.selected_symbol || active || state.selectedSymbol || "");
+      const supLoaded = !!supWrap.loaded;
+      const supAvailable = !!sup.available;
+      const supText = supAvailable
+        ? `Supervisor: ${supMode} ${Math.round(supConf * 1000) / 10}% (${supTf})`
+        : (supLoaded ? "Supervisor: No symbol profile" : "Supervisor: Profile not loaded");
       el.botModeChip.textContent = `Bot: ${mode}`;
+      if (el.supervisorChip) el.supervisorChip.textContent = supText;
       el.botThinkingValue.textContent = thinking;
-      el.botActivityMeta.textContent = `Active: ${active}\nWaiting: ${waiting}\nMode: ${mode}\nTrigger: ${state.triggerFlowMode}`;
+      el.botActivityMeta.textContent = `Active: ${active}\nWaiting: ${waiting}\nMode: ${mode}\nTrigger: ${state.triggerFlowMode}\nSupervisor: ${supMode} (${Math.round(supConf * 1000) / 10}%) ${supTf}${supSymbol ? ` | ${supSymbol}` : ""}`;
+      renderLastBlockChip();
+      const supSig = `${supMode}|${supTf}|${Math.round(supConf * 1000)}|${supSymbol}`;
+      if (supAvailable && supSig !== state.lastSupervisorSignature) {
+        state.lastSupervisorSignature = supSig;
+        log(`[TriggerFlow] Supervisor mode ${supMode} (${(supConf * 100).toFixed(1)}%) ${supSymbol ? `on ${supSymbol}` : ""}`.trim());
+      }
       renderTagStats(insight);
     }
 
@@ -4099,6 +4477,7 @@ Mode: IDLE</div>
         if (!Number.isFinite(entry)) return;
         const yOffset = 0;
         const draft = state.liveTradeEditDraft;
+        const isQuickTarget = Number(state.quickModifyTicket || 0) === Number(t.id || 0);
         const slPx = (draft && Number(draft.ticket) === Number(t.id || 0) && draft.level === "sl" && Number.isFinite(draft.currentPrice))
           ? Number(draft.currentPrice)
           : sl;
@@ -4107,12 +4486,12 @@ Mode: IDLE</div>
           : tp;
         drawLiveTradeLevelLine(ctx, vp, entry, "Entry", "rgba(190,198,213,0.96)", "#2a3446", digits, true, yOffset);
         if (Number.isFinite(slPx) && slPx > 0) {
-          const active = !!(draft && Number(draft.ticket) === Number(t.id || 0) && draft.level === "sl");
+          const active = !!((draft && Number(draft.ticket) === Number(t.id || 0) && draft.level === "sl") || isQuickTarget);
           drawLiveTradeLevelLine(ctx, vp, slPx, "SL", "rgba(255,145,145,0.96)", "#5a2f39", digits, false, yOffset, active);
           drawLiveLevelHandle(ctx, vp, slPx, yOffset, "rgba(255,145,145,0.96)", active);
         }
         if (Number.isFinite(tpPx) && tpPx > 0) {
-          const active = !!(draft && Number(draft.ticket) === Number(t.id || 0) && draft.level === "tp");
+          const active = !!((draft && Number(draft.ticket) === Number(t.id || 0) && draft.level === "tp") || isQuickTarget);
           drawLiveTradeLevelLine(ctx, vp, tpPx, "TP", "rgba(141,232,182,0.98)", "#21513f", digits, false, yOffset, active);
           drawLiveLevelHandle(ctx, vp, tpPx, yOffset, "rgba(141,232,182,0.98)", active);
         }
@@ -4942,7 +5321,7 @@ Mode: IDLE</div>
       if (!state.connected) { log("Error: Broker not connected"); return; }
       if (!state.mq5Loaded) { log("Error: Upload EA .ex5 or .mq5 first"); return; }
       if (!applyAllowedSymbols(false)) return;
-      const settings = collectSettings();
+      const settings = normalizeKutMilzSignalSettings(collectSettings());
       const allowedSymbols = [...state.allowedSymbols];
       const primarySymbol = normalizeSymbol(state.selectedSymbol || allowedSymbols[0] || "");
       try {
@@ -4991,7 +5370,7 @@ Mode: IDLE</div>
 
     async function restartEngine() {
       if (!applyAllowedSymbols(false)) return;
-      const settings = collectSettings();
+      const settings = normalizeKutMilzSignalSettings(collectSettings());
       const allowedSymbols = [...state.allowedSymbols];
       const primarySymbol = normalizeSymbol(state.selectedSymbol || allowedSymbols[0] || "");
       try {
@@ -5063,6 +5442,10 @@ Mode: IDLE</div>
         setManualTradeEnabled(!!ea.manual_trade_enabled, "backend");
         setTriggerFlowMode(ea.trigger_flow_mode || state.triggerFlowMode, "backend");
         state.trades = live.trades || [];
+        if (Number(state.quickModifyTicket || 0) > 0) {
+          const exists = state.trades.some(t => Number(t.id || 0) === Number(state.quickModifyTicket));
+          if (!exists) state.quickModifyTicket = 0;
+        }
         state.history = hist.trades || [];
         setEngineState(!!ea.running);
         if (Array.isArray(ea.allowed_symbols) && ea.allowed_symbols.length) {
@@ -5160,6 +5543,26 @@ Mode: IDLE</div>
         if (!row) return;
         openTradeDetailModal(row, "history");
       });
+      if (el.tradeDetailModifyBtn) {
+        el.tradeDetailModifyBtn.addEventListener("click", () => {
+          modifyTradeFromModal().catch(err => log(`Error: ${err.message}`));
+        });
+      }
+      if (el.tradeDetailSetSlBtn) {
+        el.tradeDetailSetSlBtn.addEventListener("click", () => {
+          startTradeLevelEditFromModal("sl").catch(err => log(`Error: ${err.message}`));
+        });
+      }
+      if (el.tradeDetailSetTpBtn) {
+        el.tradeDetailSetTpBtn.addEventListener("click", () => {
+          startTradeLevelEditFromModal("tp").catch(err => log(`Error: ${err.message}`));
+        });
+      }
+      if (el.tradeDetailCloseTradeBtn) {
+        el.tradeDetailCloseTradeBtn.addEventListener("click", () => {
+          closeTradeFromModal().catch(err => log(`Error: ${err.message}`));
+        });
+      }
       if (el.tradeDetailCloseBtn) {
         el.tradeDetailCloseBtn.addEventListener("click", closeTradeDetailModal);
       }
@@ -5325,6 +5728,8 @@ Mode: IDLE</div>
         state.marketCandles = {};
         state.marketStructure = {};
         state.accountSnapshot = {};
+        state.supervisorStatus = null;
+        state.lastSupervisorSignature = "";
         state.analyticsSummary = null;
         state.watchdogStatus = null;
         state.analyticsLastFetchMs = 0;
@@ -5378,4 +5783,3 @@ Mode: IDLE</div>
   </script>
 </body>
 </html>
-
