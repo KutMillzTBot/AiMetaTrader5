@@ -1596,9 +1596,13 @@ Mode: IDLE</div>
   </div>
 
   <script src="./kutea26_memory.js"></script>
+  <script src="./kutea26_alerts.js"></script>
   <script>
     // Real-mode dashboard with backend bridge.
     const bus = new EventTarget();
+    if (window.KutEA26Alerts && typeof window.KutEA26Alerts.init === "function") {
+      window.KutEA26Alerts.init();
+    }
     const state = {
       authenticated: false,
       connected: false,
@@ -2044,6 +2048,9 @@ Mode: IDLE</div>
       el.systemLog.scrollTop = el.systemLog.scrollHeight;
       appendTriggerFlow(message);
       updateLastBlockReasonFromMessage(message);
+      if (window.KutEA26Alerts && typeof window.KutEA26Alerts.handleLog === "function") {
+        window.KutEA26Alerts.handleLog(message);
+      }
       bus.dispatchEvent(new CustomEvent("log", { detail: message }));
     }
 
