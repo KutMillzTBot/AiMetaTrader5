@@ -1272,15 +1272,19 @@ Mode: IDLE</div>
             </div>
           </div>
           <div class="market-allow-row">
-            <div class="col-4">
+            <div class="col-3">
               <label class="hint">Allowed Market 1</label>
               <input id="allowedSymbol1" type="text" value="Volatility 75 Index" placeholder="e.g. Volatility 75 Index" />
             </div>
-            <div class="col-4">
+            <div class="col-3">
               <label class="hint">Allowed Market 2</label>
               <input id="allowedSymbol2" type="text" value="Volatility 75 (1s) Index" placeholder="e.g. Volatility 75 (1s) Index" />
             </div>
-            <div class="col-4">
+            <div class="col-3">
+              <label class="hint">Allowed Market 3</label>
+              <input id="allowedSymbol3" type="text" value="Crash 900 Index" placeholder="e.g. Crash 900 Index" />
+            </div>
+            <div class="col-3">
               <label class="hint">Apply Allowed Markets</label>
               <button id="applySymbolsBtn" class="btn-apply-markets" type="button">Apply Markets</button>
             </div>
@@ -1771,6 +1775,7 @@ Mode: IDLE</div>
       chartTf: document.getElementById("chartTf"),
       allowedSymbol1: document.getElementById("allowedSymbol1"),
       allowedSymbol2: document.getElementById("allowedSymbol2"),
+      allowedSymbol3: document.getElementById("allowedSymbol3"),
       applySymbolsBtn: document.getElementById("applySymbolsBtn"),
       toolTrend: document.getElementById("toolTrend"),
       toolPoly: document.getElementById("toolPoly"),
@@ -1869,6 +1874,7 @@ Mode: IDLE</div>
       if (Array.isArray(prefs.allowedSymbols) && prefs.allowedSymbols.length) {
         el.allowedSymbol1.value = prefs.allowedSymbols[0] || el.allowedSymbol1.value;
         if (prefs.allowedSymbols[1]) el.allowedSymbol2.value = prefs.allowedSymbols[1];
+        if (prefs.allowedSymbols[2]) el.allowedSymbol3.value = prefs.allowedSymbols[2];
       }
       const tf = normalizeTf(prefs.chartTf || "");
       if (tf) {
@@ -2596,6 +2602,10 @@ Mode: IDLE</div>
         const signalCtrl = el.settingsPanel.querySelector("[data-param='InpUseCrystalHeikinSignal']");
         if (signalCtrl) signalCtrl.value = normalized.InpUseCrystalHeikinSignal;
       }
+      if (normalized.InpKUTMilzMasterExecutionOverride !== out.InpKUTMilzMasterExecutionOverride) {
+        const masterCtrl = el.settingsPanel.querySelector("[data-param='InpKUTMilzMasterExecutionOverride']");
+        if (masterCtrl) masterCtrl.value = normalized.InpKUTMilzMasterExecutionOverride;
+      }
       state.settings = normalized;
       return normalized;
     }
@@ -2607,6 +2617,9 @@ Mode: IDLE</div>
       if (!rawPath || isOldCrystal) out.InpCrystalIndicatorPath = "Market\\KUTMilz";
       if (out.InpUseCrystalHeikinSignal === undefined || out.InpUseCrystalHeikinSignal === "") {
         out.InpUseCrystalHeikinSignal = "true";
+      }
+      if (out.InpKUTMilzMasterExecutionOverride === undefined || out.InpKUTMilzMasterExecutionOverride === "") {
+        out.InpKUTMilzMasterExecutionOverride = "true";
       }
       return out;
     }
@@ -3058,18 +3071,23 @@ Mode: IDLE</div>
     }
 
     function collectAllowedSymbolsFromInputs() {
-      const raw = [normalizeSymbol(el.allowedSymbol1.value), normalizeSymbol(el.allowedSymbol2.value)];
+      const raw = [
+        normalizeSymbol(el.allowedSymbol1.value),
+        normalizeSymbol(el.allowedSymbol2.value),
+        normalizeSymbol(el.allowedSymbol3.value)
+      ];
       const out = [];
       raw.forEach(sym => {
         if (!sym) return;
         if (!out.includes(sym)) out.push(sym);
       });
-      return out.slice(0, 2);
+      return out.slice(0, 3);
     }
 
     function syncAllowedSymbolInputs() {
       el.allowedSymbol1.value = state.allowedSymbols[0] || "";
       el.allowedSymbol2.value = state.allowedSymbols[1] || "";
+      el.allowedSymbol3.value = state.allowedSymbols[2] || "";
     }
 
     function sameSymbolList(a, b) {
@@ -3087,7 +3105,7 @@ Mode: IDLE</div>
         if (!sym) return;
         if (!out.includes(sym)) out.push(sym);
       });
-      const next = out.slice(0, 2);
+      const next = out.slice(0, 3);
       if (sameSymbolList(state.allowedSymbols, next)) {
         if (syncInputs) syncAllowedSymbolInputs();
         return;
