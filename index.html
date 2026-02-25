@@ -2620,8 +2620,7 @@ Mode: IDLE</div>
     function normalizeKutMilzSignalSettings(settings) {
       const out = { ...(settings || {}) };
       const rawPath = String(out.InpCrystalIndicatorPath || "").trim().replace(/\//g, "\\");
-      const isOldCrystal = /Crystal\s+Heikin\s+Ashi/i.test(rawPath);
-      if (!rawPath || isOldCrystal) out.InpCrystalIndicatorPath = "Market\\KUTMilz";
+      if (!rawPath) out.InpCrystalIndicatorPath = "Market\\KUTMilz";
       if (out.InpUseCrystalHeikinSignal === undefined || out.InpUseCrystalHeikinSignal === "") {
         out.InpUseCrystalHeikinSignal = "true";
       }
